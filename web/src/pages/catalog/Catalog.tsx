@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Product, Category } from '../../types';
 import { ProductGrid } from '../../components/catalog';
 import { ProductFilters } from '../../components/catalog';
-import { ProductService } from '../../../shared/services/productService';
-import { CategoryService } from '../../../shared/services/categoryService';
+import { ProductService } from '../../services/productService';
+import { CategoryService } from '../../services/categoryService';
 
 const Catalog: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
