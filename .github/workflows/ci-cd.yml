@@ -1,0 +1,354 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, 001-core-ecommerce ]
+  pull_request:
+    branches: [ main, 001-core-ecommerce ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  NODE_VERSION: '18'
+  FIREBASE_PROJECT_ID: ogni-project
+
+jobs:
+  # ==========================================
+  # CI: Continuous Integration
+  # ==========================================
+  ci:
+    name: 'CI Pipeline'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: '📥 Checkout code'
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: '⚙️ Setup Node.js'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: '📦 Install dependencies'
+      run: npm ci
+
+    - name: '🔍 TypeScript type check'
+      run: npm run type-check
+
+    - name: '🧹 ESLint'
+      run: npm run lint
+
+    - name: '🧪 Run tests'
+      run: npm run test:ci
+      env:
+        CI: true
+
+    - name: '📊 Upload test coverage'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        fail_ci_if_error: false
+
+    - name: '🔒 Security audit'
+      run: npm audit --audit-level moderate
+
+    - name: '📱 PWA validation'
+      run: npm run pwa-validate
+
+    - name: '📏 Bundle size check'
+      run: npm run build:analyze
+      continue-on-error: true
+
+    - name: '💾 Cache build artifacts'
+      uses: actions/cache@v3
+      with:
+        path: |
+          dist/
+          build/
+        key: build-${{ github.sha }}
+
+  # ==========================================
+  # Staging Deploy
+  # ==========================================
+  deploy-staging:
+    name: '🚀 Deploy to Staging'
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/001-core-ecommerce' && github.event_name == 'push'
+    environment: staging
+    timeout-minutes: 10
+
+    steps:
+    - name: '📥 Checkout code'
+      uses: actions/checkout@v4
+
+    - name: '⚙️ Setup Node.js'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: '📦 Install dependencies'
+      run: npm ci
+
+    - name: '🔨 Build for staging'
+      run: npm run build:staging
+      env:
+        REACT_APP_ENVIRONMENT: staging
+        REACT_APP_FIREBASE_PROJECT_ID: ${{ env.FIREBASE_PROJECT_ID }}
+
+    - name: '🔥 Deploy to Firebase (Staging)'
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}'
+        projectId: ${{ env.FIREBASE_PROJECT_ID }}
+        channelId: live
+        entryPoint: './'
+
+    - name: '📊 Performance check (Lighthouse)'
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          https://ogni-project.web.app
+        configPath: .lighthouserc.json
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+
+    - name: '📢 Notify deployment'
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        text: '🚀 Staging deploy completed: ${{ github.event.head_commit.message }}'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_STAGING }}
+      if: always()
+
+  # ==========================================
+  # Production Deploy (Manual Approval)
+  # ==========================================
+  deploy-production:
+    name: '🚀 Deploy to Production'
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://ogni-project.web.app
+    timeout-minutes: 15
+
+    steps:
+    - name: '📥 Checkout code'
+      uses: actions/checkout@v4
+
+    - name: '⚙️ Setup Node.js'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: '📦 Install dependencies'
+      run: npm ci
+
+    - name: '🔨 Build for production'
+      run: npm run build:production
+      env:
+        REACT_APP_ENVIRONMENT: production
+        REACT_APP_FIREBASE_PROJECT_ID: ${{ env.FIREBASE_PROJECT_ID }}
+
+    - name: '🔥 Deploy to Firebase (Production)'
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}'
+        projectId: ${{ env.FIREBASE_PROJECT_ID }}
+        channelId: live
+        entryPoint: './'
+
+    - name: '📊 Production performance check'
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        urls: |
+          https://ogni-project.web.app
+        configPath: .lighthouserc.json
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+
+    - name: '🏷️ Create release'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          ## 🚀 Production Release
+
+          **Commit**: ${{ github.sha }}
+          **Author**: ${{ github.actor }}
+          **Message**: ${{ github.event.head_commit.message }}
+
+          ### Changes
+          - Automated deployment from CI/CD pipeline
+          - Performance validated with Lighthouse
+          - Security checks passed
+
+          ### Environment
+          - Node.js ${{ env.NODE_VERSION }}
+          - Firebase Hosting
+          - PWA enabled
+        draft: false
+        prerelease: false
+
+    - name: '📢 Notify production deployment'
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        text: '🎉 Production deploy completed: ${{ github.event.head_commit.message }}'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_PRODUCTION }}
+      if: always()
+
+  # ==========================================
+  # Manual Deploy (Workflow Dispatch)
+  # ==========================================
+  manual-deploy:
+    name: '🚀 Manual Deploy'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    environment: ${{ github.event.inputs.environment }}
+    timeout-minutes: 15
+
+    steps:
+    - name: '📥 Checkout code'
+      uses: actions/checkout@v4
+
+    - name: '⚙️ Setup Node.js'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: '📦 Install dependencies'
+      run: npm ci
+
+    - name: '🔨 Build for ${{ github.event.inputs.environment }}'
+      run: npm run build:${{ github.event.inputs.environment }}
+      env:
+        REACT_APP_ENVIRONMENT: ${{ github.event.inputs.environment }}
+        REACT_APP_FIREBASE_PROJECT_ID: ${{ env.FIREBASE_PROJECT_ID }}
+
+    - name: '🔥 Deploy to Firebase (${{ github.event.inputs.environment }})'
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_${{ github.event.inputs.environment | upper }} }}'
+        projectId: ${{ env.FIREBASE_PROJECT_ID }}
+        channelId: live
+        entryPoint: './'
+
+    - name: '📢 Notify manual deployment'
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        text: '🔧 Manual ${{ github.event.inputs.environment }} deploy completed by ${{ github.actor }}'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_MANUAL }}
+      if: always()
+
+  # ==========================================
+  # Rollback Job
+  # ==========================================
+  rollback:
+    name: '🔄 Rollback'
+    runs-on: ubuntu-latest
+    if: failure() && (needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure' || needs.manual-deploy.result == 'failure')
+    needs: [deploy-staging, deploy-production, manual-deploy]
+
+    steps:
+    - name: '📥 Checkout previous version'
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.before }}
+
+    - name: '⚙️ Setup Node.js'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: '📦 Install dependencies'
+      run: npm ci
+
+    - name: '🔨 Build rollback version'
+      run: npm run build:production
+
+    - name: '🔥 Rollback Firebase deployment'
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}'
+        projectId: ${{ env.FIREBASE_PROJECT_ID }}
+        channelId: live
+        entryPoint: './'
+
+    - name: '📢 Notify rollback'
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        text: '⚠️ Automatic rollback executed due to deployment failure'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ROLLBACK }}
+      if: always()
+
+  # ==========================================
+  # Quality Gates
+  # ==========================================
+  quality-gate:
+    name: '✅ Quality Gate'
+    runs-on: ubuntu-latest
+    needs: ci
+    if: always()
+
+    steps:
+    - name: '🎯 Check CI status'
+      if: needs.ci.result != 'success'
+      run: |
+        echo "❌ CI failed - blocking deployment"
+        exit 1
+
+    - name: '📊 Check test coverage'
+      run: |
+        if [ $(cat coverage/coverage-summary.json | jq '.total.lines.pct') -lt 80 ]; then
+          echo "❌ Test coverage below 80%"
+          exit 1
+        fi
+        echo "✅ Test coverage: $(cat coverage/coverage-summary.json | jq '.total.lines.pct')%"
+
+    - name: '🔒 Check security'
+      run: |
+        if npm audit --audit-level high | grep -q "vulnerabilities"; then
+          echo "❌ High security vulnerabilities found"
+          exit 1
+        fi
+        echo "✅ No high security vulnerabilities"
+
+    - name: '📱 Check PWA compliance'
+      run: |
+        if ! npm run pwa-validate; then
+          echo "❌ PWA validation failed"
+          exit 1
+        fi
+        echo "✅ PWA validation passed"

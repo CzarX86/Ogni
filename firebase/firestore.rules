@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Products collection - read by all, write by admin
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow update: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow delete: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Categories collection - read by all, write by admin
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Admin can read all users
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Orders collection - users can read/write their own orders, admin can read all
+    match /orders/{orderId} {
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if request.auth != null;
+    }
+
+    // Carts collection - users can read/write their own cart
+    match /carts/{cartId} {
+      allow read, write: if request.auth != null && request.auth.uid == cartId;
+    }
+
+    // Reviews collection - authenticated users can create, all can read
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+
+    // PageViews, UserInteractions, Sessions - for analytics
+    match /pageViews/{viewId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if true; // Allow anonymous tracking
+    }
+
+    match /userInteractions/{interactionId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if true;
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if true;
+    }
+
+    // CartEvents - for analytics
+    match /cartEvents/{eventId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if true;
+    }
+
+    // Social features
+    match /productLikes/{likeId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow delete: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+
+    match /feedInteractions/{interactionId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if true;
+    }
+
+    match /productComments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+
+    match /productShares/{shareId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if true;
+    }
+
+    match /wishlists/{wishlistId} {
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      allow read: if resource.data.isPublic == true;
+    }
+  }
+}
