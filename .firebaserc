@@ -1,6 +1,7 @@
 {
   "projects": {
-    "ogni": "ogni-41040"
+    "ogni": "ogni-41040",
+    "default": "ogni-41040"
   },
   "targets": {},
   "etags": {}

@@ -1,50 +1,35 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Ogni Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Ecommerce-First
+Every feature starts as part of the ecommerce core; Features must integrate with Firebase Firestore, Storage, React 18+, React Native, Mercado Pago SDK, and Melhor Envio API; Clear business purpose required - no features without direct ecommerce value.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. TypeScript Standards
+All code uses TypeScript 5.x with standard conventions; Strict typing enforced, no any types; Integrates with Firebase SDK and React for type-safe development.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First (NON-NEGOTIABLE)
+TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced; Use npm test for unit and integration tests.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Integration Testing
+Focus areas requiring integration tests: Firebase Firestore/Storage interactions, Mercado Pago payments, Melhor Envio shipping, React Native mobile features, LangChain AI integrations.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Observability
+Use Firebase for logging and monitoring; Structured logging required for all services; Ensure debuggability in production ecommerce environment.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Versioning & Breaking Changes
+Follow semantic versioning (MAJOR.MINOR.PATCH); Breaking changes require migration plans; Align with Firebase SDK updates and API changes.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### VII. Simplicity
+Start simple, YAGNI principles; Avoid over-engineering; Prioritize React 18+ features and Firebase NoSQL efficiency.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Additional Constraints
+Technology stack: TypeScript 5.x + Firebase SDK, React 18+, React Native, LangChain, Mercado Pago SDK, Melhor Envio API. Project structure: src/ for code, tests/ for tests. Commands: npm test && npm run lint. Code style: Follow TypeScript standard conventions. Security: Protect API keys in .env.local, use Firebase Auth for user management.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow
+Code review requirements: All PRs must pass npm test && npm run lint, verify constitution compliance. Testing gates: Integration tests for ecommerce features. Deployment: Use Firebase hosting, ensure mobile compatibility with React Native.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+Constitution supersedes all other practices; Amendments require documentation, approval, and migration plan. All PRs/reviews must verify compliance; Complexity must be justified; Use development guidelines for runtime guidance.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0 | **Ratified**: 2024-10-01 | **Last Amended**: 2024-10-01

@@ -25,11 +25,16 @@ const Catalog: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
+        console.log('🔄 Iniciando carregamento de dados...');
+        
         const [productsData, categoriesData] = await Promise.all([
           ProductService.getAllProducts(),
           CategoryService.getAllCategories(),
         ]);
 
+        console.log('📦 Produtos carregados:', productsData.length);
+        console.log('📂 Categorias carregadas:', categoriesData.length);
+        
         setProducts(productsData);
         setCategories(categoriesData);
 
@@ -42,7 +47,7 @@ const Catalog: React.FC = () => {
           setSelectedPriceRange({ min: minPrice, max: maxPrice });
         }
       } catch (error) {
-        console.error('Failed to load catalog data:', error);
+        console.error('❌ Falha ao carregar dados:', error);
       } finally {
         setLoading(false);
       }

@@ -17,7 +17,7 @@ export class ProductService {
       const products = await ApiClient.queryCollection<Product>(
         this.COLLECTION,
         filters,
-        'createdAt',
+        undefined, // Remove ordering by createdAt temporarily
         'desc',
         options.limit
       );
