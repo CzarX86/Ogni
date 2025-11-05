@@ -254,13 +254,16 @@ jobs:
       id: set-service-account
       run: |
         if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
-          echo "service_account=${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}" >> $GITHUB_OUTPUT
+          echo "service_account=$FIREBASE_SERVICE_ACCOUNT_STAGING" >> $GITHUB_OUTPUT
         elif [ "${{ github.event.inputs.environment }}" = "production" ]; then
-          echo "service_account=${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}" >> $GITHUB_OUTPUT
+          echo "service_account=$FIREBASE_SERVICE_ACCOUNT_PRODUCTION" >> $GITHUB_OUTPUT
         else
           echo "❌ Invalid environment: ${{ github.event.inputs.environment }}"
           exit 1
         fi
+      env:
+        FIREBASE_SERVICE_ACCOUNT_STAGING: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+        FIREBASE_SERVICE_ACCOUNT_PRODUCTION: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
 
     - name: '🔥 Deploy to Firebase (${{ github.event.inputs.environment }})'
       uses: FirebaseExtended/action-hosting-deploy@v0
