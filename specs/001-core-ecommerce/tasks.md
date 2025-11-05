@@ -102,12 +102,12 @@ Based on plan.md structure:
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T038 [P] [US2] Contract test for admin product management API in web/tests/contract/test-admin-products-api.ts
-- [ ] T039 [P] [US2] Integration test for admin product workflow in web/tests/integration/test-admin-workflow.ts
+- [X] T038 [P] [US2] Contract test for admin product management API in web/tests/contract/test-admin-products-api.ts
+- [X] T039 [P] [US2] Integration test for admin product workflow in web/tests/integration/test-admin-workflow.ts
 
 ### Implementation for User Story 2
 
-- [ ] T040 [P] [US2] Create admin role validation in shared/services/authService.ts
+- [X] T040 [P] [US2] Create admin role validation in shared/services/authService.ts
 - [ ] T041 [P] [US2] Create admin product management components in web/src/components/admin/products/
 - [ ] T042 [P] [US2] Create admin dashboard layout in web/src/components/admin/AdminLayout.tsx
 - [ ] T043 [US2] Implement admin product list page in web/src/pages/admin/ProductList.tsx
