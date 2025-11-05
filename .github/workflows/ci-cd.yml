@@ -250,11 +250,23 @@ jobs:
         REACT_APP_ENVIRONMENT: ${{ github.event.inputs.environment }}
         REACT_APP_FIREBASE_PROJECT_ID: ${{ env.FIREBASE_PROJECT_ID }}
 
-    - name: '🔥 Deploy to Firebase (${{ github.event.inputs.environment }})'
+    - name: '� Set Firebase service account'
+      id: set-service-account
+      run: |
+        if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
+          echo "service_account=${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}" >> $GITHUB_OUTPUT
+        elif [ "${{ github.event.inputs.environment }}" = "production" ]; then
+          echo "service_account=${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Invalid environment: ${{ github.event.inputs.environment }}"
+          exit 1
+        fi
+
+    - name: '�🔥 Deploy to Firebase (${{ github.event.inputs.environment }})'
       uses: FirebaseExtended/action-hosting-deploy@v0
       with:
         repoToken: '${{ secrets.GITHUB_TOKEN }}'
-        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_${{ github.event.inputs.environment | upper }} }}'
+        firebaseServiceAccount: '${{ steps.set-service-account.outputs.service_account }}'
         projectId: ${{ env.FIREBASE_PROJECT_ID }}
         channelId: live
         entryPoint: './'
