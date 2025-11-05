@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Cart as CartType, Product } from '../../types';
 import { Cart as CartComponent } from '../../components/cart';
 import { CartService } from '../../services/cartService';
-import { ProductService } from '../../services/productService';
 
 const CartPage: React.FC = () => {
   const [cart, setCart] = useState<CartType | null>(null);

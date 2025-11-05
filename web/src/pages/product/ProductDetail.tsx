@@ -9,7 +9,7 @@ interface ProductDetailPageProps {
 
 const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId }) => {
   // For now, get productId from props or URL search params
-  const [currentProductId, setCurrentProductId] = useState<string | null>(
+  const [currentProductId] = useState<string | null>(
     productId || new URLSearchParams(window.location.search).get('id')
   );
   const [product, setProduct] = useState<Product | null>(null);

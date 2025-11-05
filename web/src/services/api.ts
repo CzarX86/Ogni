@@ -8,14 +8,15 @@ import {
   deleteDoc, 
   query, 
   where, 
-  orderBy, 
-  limit, 
+  orderBy,
+  limit,
   startAfter,
-  DocumentData,
-  QueryDocumentSnapshot
+  Query,
+  QueryDocumentSnapshot,
+  DocumentData
 } from 'firebase/firestore';
 import { db } from '../services/firebase/config';
-import { ApiResponse, PaginatedResponse } from '../types';
+import { ApiResponse } from '../types';
 
 export class ApiClient {
   // Generic get document
@@ -55,7 +56,7 @@ export class ApiClient {
     limitCount?: number
   ): Promise<T[]> {
     try {
-      let q = collection(db, collectionName);
+      let q: Query<DocumentData> = collection(db, collectionName);
 
       // Apply filters
       filters.forEach(filter => {
@@ -95,7 +96,7 @@ export class ApiClient {
   static async updateDocument<T>(collectionName: string, id: string, data: Partial<T>): Promise<void> {
     try {
       const docRef = doc(db, collectionName, id);
-      await updateDoc(docRef, data);
+      await updateDoc(docRef, data as any);
     } catch (error) {
       console.error(`Error updating document in ${collectionName}:`, error);
       throw error;

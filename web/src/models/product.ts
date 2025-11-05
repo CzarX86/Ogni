@@ -1,7 +1,6 @@
 import { Product } from '../types';
 
-// Product model with validation
-export { Product };
+// Product validation model
 
 export class ProductModel {
   static validate(product: Partial<Product>): { isValid: boolean; errors: string[] } {

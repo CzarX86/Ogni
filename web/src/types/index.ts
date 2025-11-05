@@ -5,6 +5,9 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  discount?: number; // Percentage discount (0-100)
+  rating?: number; // Average rating (0-5)
+  reviewCount?: number; // Number of reviews
   images: string[];
   stock: number;
   categoryId: string;

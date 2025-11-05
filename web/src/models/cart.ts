@@ -1,7 +1,6 @@
 import { Cart, CartItem } from '../types';
 
-// Cart and CartItem models with validation
-export { Cart, CartItem };
+// Cart and CartItem validation models
 
 export class CartItemModel {
   static validate(item: Partial<CartItem>): { isValid: boolean; errors: string[] } {
