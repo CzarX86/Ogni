@@ -38,23 +38,99 @@ export const Checkout: React.FC<CheckoutProps> = ({
   const shipping = subtotal > 100 ? 0 : 10;
   const total = subtotal + shipping;
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateShippingData = (data: CheckoutForm['shippingAddress']): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!data.street.trim()) {
+      newErrors.street = 'Endereço é obrigatório';
+    }
+
+    if (!data.city.trim()) {
+      newErrors.city = 'Cidade é obrigatória';
+    }
+
+    if (!data.zip.trim()) {
+      newErrors.zip = 'CEP é obrigatório';
+    } else if (!/^\d{5}-?\d{3}$/.test(data.zip.replace(/\D/g, ''))) {
+      newErrors.zip = 'CEP inválido';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateCart = (): boolean => {
+    if (!cart || !cart.items || cart.items.length === 0) {
+      setErrors({ cart: 'Carrinho está vazio' });
+      return false;
+    }
+
+    // Check if all products are available
+    const unavailableProducts = cart.items.filter(item => {
+      const product = products[item.productId];
+      return !product || item.quantity <= 0;
+    });
+
+    if (unavailableProducts.length > 0) {
+      setErrors({ cart: 'Alguns produtos não estão disponíveis' });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleShippingSubmit = (shippingData: CheckoutForm['shippingAddress']) => {
-    setCheckoutData(prev => ({ ...prev, shippingAddress: shippingData }));
-    setCurrentStep('payment');
+    if (validateShippingData(shippingData)) {
+      setCheckoutData(prev => ({ ...prev, shippingAddress: shippingData }));
+      setErrors({});
+      setCurrentStep('payment');
+    }
   };
 
   const handlePaymentSubmit = (paymentMethod: 'pix' | 'card') => {
+    if (!paymentMethod) {
+      setErrors({ payment: 'Selecione um método de pagamento' });
+      return;
+    }
+
     setCheckoutData(prev => ({ ...prev, paymentMethod }));
+    setErrors({});
     setCurrentStep('review');
   };
 
-  const handleOrderSubmit = () => {
-    if (onSubmitOrder && checkoutData.shippingAddress && checkoutData.paymentMethod) {
-      onSubmitOrder({
-        shippingAddress: checkoutData.shippingAddress,
-        paymentMethod: checkoutData.paymentMethod,
+  const handleOrderSubmit = async () => {
+    if (!checkoutData.shippingAddress || !checkoutData.paymentMethod) {
+      setErrors({ general: 'Dados de checkout incompletos' });
+      return;
+    }
+
+    if (!validateCart()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrors({});
+
+    try {
+      if (onSubmitOrder) {
+        await onSubmitOrder({
+          shippingAddress: checkoutData.shippingAddress,
+          paymentMethod: checkoutData.paymentMethod,
+        });
+        setCurrentStep('confirmation');
+      }
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      setErrors({
+        general: error instanceof Error
+          ? error.message
+          : 'Erro ao processar pedido. Tente novamente.'
       });
-      setCurrentStep('confirmation');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -148,7 +224,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
               checkoutData={checkoutData as CheckoutForm}
               onSubmit={handleOrderSubmit}
               onBack={() => setCurrentStep('payment')}
-              loading={loading}
+              loading={loading || isSubmitting}
+              errors={errors}
             />
           )}
         </div>
@@ -406,6 +483,7 @@ interface ReviewStepProps {
   onSubmit: () => void;
   onBack: () => void;
   loading?: boolean;
+  errors?: { [key: string]: string };
 }
 
 const ReviewStep: React.FC<ReviewStepProps> = ({
@@ -415,6 +493,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({
   onSubmit,
   onBack,
   loading,
+  errors = {},
 }) => {
   const cartItems = cart.items.map(item => ({
     ...item,
@@ -432,6 +511,28 @@ const ReviewStep: React.FC<ReviewStepProps> = ({
       </h2>
 
       <div className="space-y-6">
+        {/* Error Messages */}
+        {Object.keys(errors).length > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex">
+              <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Erro ao processar pedido
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <ul className="list-disc pl-5 space-y-1">
+                    {Object.values(errors).map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Shipping Address */}
         <div>
           <h3 className="text-lg font-medium text-gray-900 mb-3">

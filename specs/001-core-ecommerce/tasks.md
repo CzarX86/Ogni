@@ -84,11 +84,11 @@ Based on plan.md structure:
 - [X] T030 [US1] Implement product detail page in web/src/pages/ProductDetail.tsx
 - [X] T031 [US1] Implement cart page in web/src/pages/Cart.tsx
 - [X] T032 [US1] Implement checkout page in web/src/pages/Checkout.tsx
-- [ ] T033 [US1] Integrate Mercado Pago payment processing in shared/services/paymentService.ts
-- [ ] T034 [US1] Integrate Melhor Envio shipping calculations in shared/services/shippingService.ts
-- [ ] T035 [US1] Add purchase analytics tracking in web/src/analytics/purchaseEvents.ts
-- [ ] T036 [US1] Add validation and error handling for purchase flow
-- [ ] T037 [US1] Add offline cart functionality with service worker sync
+- [X] T033 [US1] Integrate Mercado Pago payment processing in shared/services/paymentService.ts
+- [X] T034 [US1] Integrate Melhor Envio shipping calculations in shared/services/shippingService.ts
+- [X] T035 [US1] Add purchase analytics tracking in web/src/analytics/purchaseEvents.ts
+- [X] T036 [US1] Add validation and error handling for purchase flow
+- [X] T037 [US1] Add offline cart functionality with service worker sync
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
