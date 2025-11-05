@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Product } from '../../types';
 import { ProductDetail as ProductDetailComponent } from '../../components/product/ProductDetail';
 import { ProductService } from '../../services/productService';
+import { CartService } from '../../services/cartService';
 
 interface ProductDetailPageProps {
   productId?: string;
 }
 
 const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId }) => {
-  // For now, get productId from props or URL search params
-  const [currentProductId] = useState<string | null>(
-    productId || new URLSearchParams(window.location.search).get('id')
-  );
+  const navigate = useNavigate();
+  const { id: routeProductId } = useParams<{ id: string }>();
+  const resolvedProductId = productId || routeProductId || new URLSearchParams(window.location.search).get('id');
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [addingToCart, setAddingToCart] = useState(false);
+
+  const userId = 'demo-user';
 
   useEffect(() => {
     const loadProduct = async () => {
-      if (!currentProductId) {
+      if (!resolvedProductId) {
         setError('ID do produto não fornecido');
         setLoading(false);
         return;
@@ -27,7 +32,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId }) => {
       try {
         setLoading(true);
         setError(null);
-        const productData = await ProductService.getProductById(currentProductId);
+        const productData = await ProductService.getProductById(resolvedProductId);
 
         if (!productData) {
           setError('Produto não encontrado');
@@ -43,15 +48,37 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId }) => {
     };
 
     loadProduct();
-  }, [currentProductId]);
+  }, [resolvedProductId]);
 
-  const handleAddToCart = (productId: string, quantity: number) => {
-    // TODO: Implement cart functionality
-    console.log('Add to cart:', productId, quantity);
+  const handleAddToCart = async (productIdToAdd: string, quantity: number) => {
+    try {
+      setAddingToCart(true);
+      await CartService.addItem(userId, productIdToAdd, quantity);
+      setFeedback({
+        type: 'success',
+        message: 'Produto adicionado ao carrinho com sucesso.',
+      });
+    } catch (err) {
+      console.error('Failed to add product to cart:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Não foi possível adicionar o produto ao carrinho.';
+      setFeedback({ type: 'error', message: errorMessage });
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   const handleBack = () => {
-    window.history.back(); // Go back to previous page
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
+  const handleCloseFeedback = () => setFeedback(null);
+
+  const handleGoToCart = () => {
+    navigate('/cart');
   };
 
   if (loading) {
@@ -101,10 +128,45 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {feedback && (
+        <div
+          className={`max-w-4xl mx-auto px-4 pt-8 ${
+            feedback.type === 'success'
+              ? 'text-green-700'
+              : 'text-red-700'
+          }`}
+        >
+          <div
+            className={`rounded-lg border px-4 py-3 flex items-start justify-between ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50'
+                : 'border-red-200 bg-red-50'
+            }`}
+          >
+            <div>
+              <p className="font-medium">{feedback.type === 'success' ? 'Produto adicionado ao carrinho' : 'Não foi possível adicionar o produto'}</p>
+              <p className="text-sm mt-1">{feedback.message}</p>
+              {feedback.type === 'success' && (
+                <button
+                  onClick={handleGoToCart}
+                  className="mt-3 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
+                >
+                  Ver carrinho
+                </button>
+              )}
+            </div>
+            <button onClick={handleCloseFeedback} className="ml-4 text-sm font-medium underline">
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
       <ProductDetailComponent
         product={product}
         onAddToCart={handleAddToCart}
         onBack={handleBack}
+        isAddingToCart={addingToCart}
       />
     </div>
   );

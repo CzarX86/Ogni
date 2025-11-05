@@ -7,9 +7,11 @@ interface ProductFiltersProps {
   priceRange: { min: number; max: number };
   selectedPriceRange: { min: number; max: number };
   sortBy: 'name' | 'price-low' | 'price-high' | 'newest' | 'rating';
+  searchTerm: string;
   onCategoryChange: (categoryId?: string) => void;
   onPriceRangeChange: (range: { min: number; max: number }) => void;
   onSortChange: (sort: 'name' | 'price-low' | 'price-high' | 'newest' | 'rating') => void;
+  onSearchChange: (term: string) => void;
   onClearFilters: () => void;
 }
 
@@ -22,6 +24,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   onCategoryChange,
   onPriceRangeChange,
   onSortChange,
+  onSearchChange,
   onClearFilters,
 }) => {
   const [showFilters, setShowFilters] = useState(false);
@@ -34,7 +37,11 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     { value: 'rating', label: 'Melhor avaliados' },
   ] as const;
 
-  const hasActiveFilters = selectedCategory || selectedPriceRange.min > priceRange.min || selectedPriceRange.max < priceRange.max;
+  const hasActiveFilters =
+    !!selectedCategory ||
+    selectedPriceRange.min > priceRange.min ||
+    selectedPriceRange.max < priceRange.max ||
+    searchTerm.trim().length > 0;
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
@@ -62,6 +69,32 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       {/* Filters Content */}
       <div className={`space-y-4 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+        <div>
+          <label htmlFor="catalog-search" className="block text-sm font-medium text-gray-700 mb-2">
+            Buscar produtos
+          </label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.5 5.5a7.5 7.5 0 0011.15 11.15z"
+                />
+              </svg>
+            </span>
+            <input
+              id="catalog-search"
+              type="search"
+              value={searchTerm}
+              onChange={(event) => onSearchChange(event.target.value)}
+              placeholder="Busque por nome ou descrição"
+              className="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Category Filter */}
           <div>

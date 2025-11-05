@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Cart as CartType } from '../../types';
+import { useNavigate } from 'react-router-dom';
+import { Cart as CartType, Order } from '../../types';
 import { Checkout as CheckoutComponent } from '../../components/checkout';
 import { CartService } from '../../services/cartService';
 import { OrderService } from '../../services/orderService';
@@ -9,9 +10,11 @@ const CheckoutPage: React.FC = () => {
   const [products, setProducts] = useState<{ [productId: string]: { name: string; price: number; images: string[] } }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [latestOrder, setLatestOrder] = useState<Order | null>(null);
 
   // For demo purposes, use a fixed user ID
   const userId = 'demo-user';
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadCart = async () => {
@@ -46,6 +49,7 @@ const CheckoutPage: React.FC = () => {
           };
         });
         setProducts(productsObj);
+        setLatestOrder(null);
       } catch (err) {
         console.error('Failed to load cart for checkout:', err);
         setError('Erro ao carregar carrinho para checkout');
@@ -73,21 +77,39 @@ const CheckoutPage: React.FC = () => {
 
       console.log('Order created successfully:', order);
 
+      let processedOrder = order;
+      try {
+        processedOrder = await OrderService.processPayment(order.id, {
+          success: true,
+          transactionId: `demo-${Date.now()}`,
+        });
+      } catch (paymentError) {
+        console.warn('Payment simulation failed:', paymentError);
+      }
+
+      setLatestOrder(processedOrder);
+
       // Redirect to success page or show success message
       // For now, just log success
       alert('Pedido realizado com sucesso!');
 
+      return processedOrder;
+
     } catch (err) {
       console.error('Failed to create order:', err);
       setError('Erro ao finalizar pedido. Tente novamente.');
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
   const handleBack = () => {
-    // TODO: Navigate back to cart
-    window.history.back();
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/cart');
+    }
   };
 
   if (loading) {
@@ -177,6 +199,7 @@ const CheckoutPage: React.FC = () => {
         onSubmitOrder={handleSubmitOrder}
         onBack={handleBack}
         loading={loading}
+        order={latestOrder}
       />
     </div>
   );

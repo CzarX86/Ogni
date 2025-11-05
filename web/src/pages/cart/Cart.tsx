@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Cart as CartType, Product } from '../../types';
 import { Cart as CartComponent } from '../../components/cart';
 import { CartService } from '../../services/cartService';
@@ -11,6 +12,19 @@ const CartPage: React.FC = () => {
 
   // For demo purposes, use a fixed user ID
   const userId = 'demo-user';
+  const navigate = useNavigate();
+
+  const buildProductsMap = (productList: Product[]) => {
+    const productsObj: { [productId: string]: { name: string; price: number; images: string[] } } = {};
+    productList.forEach((product: Product) => {
+      productsObj[product.id] = {
+        name: product.name,
+        price: product.price,
+        images: product.images,
+      };
+    });
+    return productsObj;
+  };
 
   useEffect(() => {
     const loadCart = async () => {
@@ -23,17 +37,7 @@ const CartPage: React.FC = () => {
 
         if (cartWithProducts) {
           setCart(cartWithProducts.cart);
-
-          // Convert products array to object for easier lookup
-          const productsObj: { [productId: string]: { name: string; price: number; images: string[] } } = {};
-          cartWithProducts.products.forEach((product: Product) => {
-            productsObj[product.id] = {
-              name: product.name,
-              price: product.price,
-              images: product.images,
-            };
-          });
-          setProducts(productsObj);
+          setProducts(buildProductsMap(cartWithProducts.products));
         } else {
           // Create empty cart if none exists
           setCart({
@@ -71,6 +75,16 @@ const CartPage: React.FC = () => {
       const cartWithProducts = await CartService.getCartWithProducts(userId);
       if (cartWithProducts) {
         setCart(cartWithProducts.cart);
+        setProducts(buildProductsMap(cartWithProducts.products));
+      } else {
+        setCart({
+          id: undefined,
+          userId,
+          items: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        setProducts({});
       }
     } catch (err) {
       console.error('Failed to update cart:', err);
@@ -91,6 +105,7 @@ const CartPage: React.FC = () => {
       const cartWithProducts = await CartService.getCartWithProducts(userId);
       if (cartWithProducts) {
         setCart(cartWithProducts.cart);
+        setProducts(buildProductsMap(cartWithProducts.products));
       } else {
         // Reset to empty cart
         setCart({
@@ -100,6 +115,7 @@ const CartPage: React.FC = () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
+        setProducts({});
       }
     } catch (err) {
       console.error('Failed to remove item:', err);
@@ -110,13 +126,11 @@ const CartPage: React.FC = () => {
   };
 
   const handleCheckout = () => {
-    // TODO: Navigate to checkout page
-    console.log('Navigate to checkout');
+    navigate('/checkout');
   };
 
   const handleContinueShopping = () => {
-    // TODO: Navigate to catalog page
-    console.log('Navigate to catalog');
+    navigate('/');
   };
 
   if (loading && !cart) {

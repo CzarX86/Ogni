@@ -6,12 +6,14 @@ interface ProductCardProps {
   product: Product;
   onAddToCart?: (productId: string) => void;
   onViewDetails?: (productId: string) => void;
+  isProcessing?: boolean;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onAddToCart,
   onViewDetails,
+  isProcessing = false,
 }) => {
   const handleAddToCart = () => {
     if (onAddToCart) {
@@ -26,6 +28,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const isOutOfStock = product.stock <= 0;
+  const isAddDisabled = isOutOfStock || isProcessing;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
@@ -127,14 +130,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           <button
             onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 ${
-              isOutOfStock
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            disabled={isAddDisabled}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 disabled:opacity-60 disab
+led:cursor-not-allowed ${
+              isAddDisabled
+                ? 'bg-gray-300 text-gray-600'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
-            {isOutOfStock ? 'Indisponível' : 'Adicionar'}
+            {isOutOfStock ? 'Indisponível' : isProcessing ? 'Adicionando...' : 'Adicionar'}
           </button>
         </div>
       </div>
