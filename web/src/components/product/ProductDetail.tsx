@@ -6,12 +6,14 @@ interface ProductDetailProps {
   product: Product;
   onAddToCart?: (productId: string, quantity: number) => void;
   onBack?: () => void;
+  isAddingToCart?: boolean;
 }
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({
   product,
   onAddToCart,
   onBack,
+  isAddingToCart = false,
 }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -30,6 +32,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
   const isOutOfStock = product.stock <= 0;
   const maxQuantity = Math.min(product.stock, 10); // Limit to 10 for UX
+  const isAddDisabled = isOutOfStock || isAddingToCart;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -206,14 +209,18 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            className={`w-full py-4 px-6 rounded-lg font-medium text-lg transition-colors duration-200 ${
-              isOutOfStock
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            disabled={isAddDisabled}
+            className={`w-full py-4 px-6 rounded-lg font-medium text-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
+              isAddDisabled
+                ? 'bg-gray-300 text-gray-600'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
-            {isOutOfStock ? 'Indisponível' : `Adicionar ao Carrinho - ${formatPrice(product.price * quantity)}`}
+            {isOutOfStock
+              ? 'Indisponível'
+              : isAddingToCart
+              ? 'Adicionando ao Carrinho...'
+              : `Adicionar ao Carrinho - ${formatPrice(product.price * quantity)}`}
           </button>
 
           {/* Product Description */}

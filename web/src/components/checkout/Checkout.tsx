@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Cart as CartType, CheckoutForm } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { Cart as CartType, CheckoutForm, Order } from '../../types';
 import { formatPrice } from '../../utils/format';
 
 interface CheckoutProps {
   cart: CartType;
   products: { [productId: string]: { name: string; price: number; images: string[] } };
-  onSubmitOrder?: (checkoutData: CheckoutForm) => void;
+  onSubmitOrder?: (checkoutData: CheckoutForm) => Promise<Order | void> | Order | void;
   onBack?: () => void;
   loading?: boolean;
+  order?: Order | null;
 }
 
 type CheckoutStep = 'shipping' | 'payment' | 'review' | 'confirmation';
@@ -18,6 +19,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
   onSubmitOrder,
   onBack,
   loading = false,
+  order,
 }) => {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('shipping');
   const [checkoutData, setCheckoutData] = useState<Partial<CheckoutForm>>({
@@ -40,6 +42,13 @@ export const Checkout: React.FC<CheckoutProps> = ({
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+    if (order) {
+      setConfirmedOrder(order);
+    }
+  }, [order]);
 
   const validateShippingData = (data: CheckoutForm['shippingAddress']): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -120,8 +129,8 @@ export const Checkout: React.FC<CheckoutProps> = ({
           shippingAddress: checkoutData.shippingAddress,
           paymentMethod: checkoutData.paymentMethod,
         });
-        setCurrentStep('confirmation');
       }
+      setCurrentStep('confirmation');
     } catch (error) {
       console.error('Error submitting order:', error);
       setErrors({
@@ -148,6 +157,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
         products={products}
         checkoutData={checkoutData as CheckoutForm}
         onBack={onBack}
+        order={confirmedOrder}
       />
     );
   }
@@ -640,6 +650,7 @@ interface CheckoutConfirmationProps {
   products: { [productId: string]: { name: string; price: number; images: string[] } };
   checkoutData: CheckoutForm;
   onBack?: () => void;
+  order?: Order | null;
 }
 
 const CheckoutConfirmation: React.FC<CheckoutConfirmationProps> = ({
@@ -647,15 +658,42 @@ const CheckoutConfirmation: React.FC<CheckoutConfirmationProps> = ({
   products,
   checkoutData,
   onBack,
+  order,
 }) => {
-  const cartItems = cart.items.map(item => ({
-    ...item,
-    product: products[item.productId],
-  })).filter(item => item.product);
+  const statusLabels: Record<Order['status'], string> = {
+    pending: 'Pendente',
+    paid: 'Pago',
+    shipped: 'Enviado',
+    delivered: 'Entregue',
+    cancelled: 'Cancelado',
+  };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const shipping = subtotal > 100 ? 0 : 10;
-  const total = subtotal + shipping;
+  const paymentStatusLabels: Record<string, string> = {
+    pending: 'Pendente',
+    processing: 'Processando',
+    completed: 'Concluído',
+    failed: 'Falhou',
+  };
+
+  const itemsFromOrder = order
+    ? order.items.map(item => ({
+        ...item,
+        product: products[item.productId],
+      }))
+    : cart.items.map(item => ({
+        ...item,
+        product: products[item.productId],
+      })).filter(item => item.product);
+
+  const subtotal = itemsFromOrder.reduce((sum, item) => {
+    if (item.product) {
+      return sum + item.product.price * item.quantity;
+    }
+    return sum + item.price * item.quantity;
+  }, 0);
+
+  const shipping = order ? order.shipping.cost : subtotal > 100 ? 0 : 10;
+  const total = order ? order.total : subtotal + shipping;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -691,23 +729,45 @@ const CheckoutConfirmation: React.FC<CheckoutConfirmationProps> = ({
             <p className="text-gray-600 capitalize">{checkoutData.paymentMethod}</p>
           </div>
 
+          {order && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">Número do Pedido</h3>
+                <p className="text-gray-600">#{order.id}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">Status do Pedido</h3>
+                <p className="text-gray-600">{statusLabels[order.status]}</p>
+                <p className="text-sm text-gray-500">Pagamento: {paymentStatusLabels[order.payment.status] || order.payment.status}</p>
+              </div>
+            </div>
+          )}
+
           <div>
             <h3 className="font-medium text-gray-900 mb-2">Itens</h3>
             <div className="space-y-2">
-              {cartItems.map((item) => (
+              {itemsFromOrder.map((item) => (
                 <div key={item.productId} className="flex justify-between text-sm">
                   <span className="text-gray-600">
-                    {item.product.name} (x{item.quantity})
+                    {item.product?.name || item.productId} (x{item.quantity})
                   </span>
                   <span className="text-gray-900">
-                    {formatPrice(item.product.price * item.quantity)}
+                    {formatPrice((item.product?.price ?? item.price) * item.quantity)}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-4">
+          <div className="border-t border-gray-200 pt-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Subtotal</span>
+              <span className="text-gray-900">{formatPrice(subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Frete</span>
+              <span className="text-gray-900">{shipping === 0 ? 'Grátis' : formatPrice(shipping)}</span>
+            </div>
             <div className="flex justify-between text-lg font-semibold">
               <span className="text-gray-900">Total</span>
               <span className="text-gray-900">{formatPrice(total)}</span>

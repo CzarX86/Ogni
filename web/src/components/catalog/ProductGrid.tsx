@@ -8,6 +8,7 @@ interface ProductGridProps {
   onAddToCart?: (productId: string) => void;
   onViewDetails?: (productId: string) => void;
   emptyMessage?: string;
+  processingProductId?: string | null;
 }
 
 export const ProductGrid: React.FC<ProductGridProps> = ({
@@ -16,6 +17,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   onAddToCart,
   onViewDetails,
   emptyMessage = 'Nenhum produto encontrado.',
+  processingProductId = null,
 }) => {
   if (loading) {
     return (
@@ -72,6 +74,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           product={product}
           onAddToCart={onAddToCart}
           onViewDetails={onViewDetails}
+          isProcessing={processingProductId === product.id}
         />
       ))}
     </div>

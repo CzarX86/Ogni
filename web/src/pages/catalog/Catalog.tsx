@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Product, Category } from '../../types';
 import { ProductGrid } from '../../components/catalog';
 import { ProductFilters } from '../../components/catalog';
 import { ProductService } from '../../services/productService';
 import { CategoryService } from '../../services/categoryService';
 import { SeedService } from '../../services/seedService';
+import { CartService } from '../../services/cartService';
 import { Button } from '../../components/ui/button';
 
 const Catalog: React.FC = () => {
@@ -13,6 +15,13 @@ const Catalog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [seeding, setSeeding] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [addingProductId, setAddingProductId] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
+  const userId = 'demo-user';
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState<string>();
@@ -60,6 +69,14 @@ const Catalog: React.FC = () => {
   useEffect(() => {
     let filtered = [...products];
 
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    if (normalizedSearch) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(normalizedSearch) ||
+        product.description.toLowerCase().includes(normalizedSearch)
+      );
+    }
+
     // Category filter
     if (selectedCategory) {
       filtered = filtered.filter(product => product.categoryId === selectedCategory);
@@ -89,7 +106,7 @@ const Catalog: React.FC = () => {
     });
 
     setFilteredProducts(filtered);
-  }, [products, selectedCategory, selectedPriceRange, sortBy]);
+  }, [products, selectedCategory, selectedPriceRange, sortBy, searchTerm]);
 
   const handleCategoryChange = (categoryId?: string) => {
     setSelectedCategory(categoryId);
@@ -107,16 +124,34 @@ const Catalog: React.FC = () => {
     setSelectedCategory(undefined);
     setSelectedPriceRange(priceRange);
     setSortBy('name');
+    setSearchTerm('');
   };
 
-  const handleAddToCart = (productId: string) => {
-    // TODO: Implement cart functionality
-    console.log('Add to cart:', productId);
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  const handleAddToCart = async (productId: string) => {
+    try {
+      setAddingProductId(productId);
+      await CartService.addItem(userId, productId, 1);
+      setNotification({
+        type: 'success',
+        message: 'Produto adicionado ao carrinho com sucesso.',
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Não foi possível adicionar o produto ao carrinho.';
+      setNotification({
+        type: 'error',
+        message: errorMessage,
+      });
+    } finally {
+      setAddingProductId(null);
+    }
   };
 
   const handleViewDetails = (productId: string) => {
-    // TODO: Navigate to product detail page
-    console.log('View details:', productId);
+    navigate(`/product/${productId}`);
   };
 
   const handleSeedDatabase = async () => {
@@ -170,15 +205,40 @@ const Catalog: React.FC = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Filters */}
+        {notification && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 flex items-start justify-between ${
+              notification.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            <div>
+              <p className="font-medium">
+                {notification.type === 'success' ? 'Tudo certo!' : 'Algo deu errado'}
+              </p>
+              <p className="text-sm mt-1">{notification.message}</p>
+            </div>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-4 text-sm font-medium underline"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
+
         <ProductFilters
           categories={categories}
           selectedCategory={selectedCategory}
           priceRange={priceRange}
           selectedPriceRange={selectedPriceRange}
           sortBy={sortBy}
+          searchTerm={searchTerm}
           onCategoryChange={handleCategoryChange}
           onPriceRangeChange={handlePriceRangeChange}
           onSortChange={handleSortChange}
+          onSearchChange={handleSearchChange}
           onClearFilters={handleClearFilters}
         />
 
@@ -195,6 +255,7 @@ const Catalog: React.FC = () => {
           loading={loading}
           onAddToCart={handleAddToCart}
           onViewDetails={handleViewDetails}
+          processingProductId={addingProductId}
           emptyMessage="Nenhum produto encontrado com os filtros selecionados. Tente ajustar seus filtros."
         />
       </div>
