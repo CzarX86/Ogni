@@ -108,10 +108,10 @@ Based on plan.md structure:
 ### Implementation for User Story 2
 
 - [X] T040 [P] [US2] Create admin role validation in shared/services/authService.ts
-- [ ] T041 [P] [US2] Create admin product management components in web/src/components/admin/products/
-- [ ] T042 [P] [US2] Create admin dashboard layout in web/src/components/admin/AdminLayout.tsx
-- [ ] T043 [US2] Implement admin product list page in web/src/pages/admin/ProductList.tsx
-- [ ] T044 [US2] Implement admin product create/edit page in web/src/pages/admin/ProductForm.tsx
+- [X] T041 [P] [US2] Create admin product management components in web/src/components/admin/products/
+- [X] T042 [P] [US2] Create admin dashboard layout in web/src/components/admin/AdminLayout.tsx
+- [X] T043 [US2] Implement admin product list page in web/src/pages/admin/ProductList.tsx
+- [X] T044 [US2] Implement admin product create/edit page in web/src/pages/admin/ProductForm.tsx
 - [ ] T045 [US2] Add inventory management functionality in shared/services/inventoryService.ts
 - [ ] T046 [US2] Add admin analytics tracking in web/src/analytics/adminEvents.ts
 - [ ] T047 [US2] Add bulk product operations support

@@ -1,7 +1,7 @@
 # Metodologia de Desenvolvimento: Features Independentes
 
 **Data**: November 5, 2025
-**Última Atualização**: Infraestrutura completa (Firebase + shadcn/ui)
+**Última Atualização**: Planejamento pós-lançamento estruturado (4 fases)
 **Contexto**: Estratégia de desenvolvimento modular para projetos complexos
 **Baseado em**: Speckit framework + melhores práticas ágeis
 
@@ -185,6 +185,7 @@ specs/
 - **Branch Strategy**: GitFlow com feature branches protegidas
 - **Testing Strategy**: Contract tests + E2E + Performance + TypeScript strict checking
 - **Deploy Strategy**: Blue-green com feature flags + GitHub Actions workflow
+- **Security**: Actions permitidas específicas via GitHub settings
 - **Monitoring**: Custom dashboards por feature + Lighthouse CI para performance
 - **Quality Gates**: ESLint, Prettier, test coverage >80%, PWA validation
 
@@ -209,6 +210,211 @@ specs/
 3. **Correção**: Fix prop destructuring, install missing packages, update type definitions
 4. **Validação**: Build testing, linting, type checking antes do commit
 5. **Documentação**: Registrar padrões encontrados para evitar recorrência
+
+### **Protocolo de Commits & Git Workflow**
+
+#### **Quando Sugerir Commit (Agente AI)**
+O agente deve **proativamente sugerir commits** nos seguintes momentos:
+
+**✅ SEMPRE Sugerir Commit:**
+1. **Feature Completa**: Task do `tasks.md` totalmente implementada e validada
+2. **Bug Fix Validado**: Correção aplicada + testes passando + sem regressões
+3. **Refactoring Estável**: Código refatorado + testes passando + comportamento preservado
+4. **Documentação Crítica**: README, API contracts, ou guias de setup atualizados
+5. **Config Changes**: Alterações em CI/CD, Firebase, ou infraestrutura validadas
+6. **Breaking Point**: Antes de iniciar mudanças significativas (checkpoint de segurança)
+7. **End of Session**: Fim de sessão de desenvolvimento com trabalho estável
+
+**⚠️ AVISAR Antes de Commit:**
+1. **Testes Faltando**: Código novo sem cobertura de testes adequada
+2. **Linting Errors**: ESLint ou TypeScript errors presentes
+3. **Build Failing**: `npm run build` com erros
+4. **Incomplete Feature**: Task parcialmente implementada
+5. **TODO Comments**: Comentários TODO críticos não resolvidos
+
+**❌ NÃO Sugerir Commit:**
+1. **Código Quebrado**: Qualquer erro de compilação ou runtime
+2. **Work in Progress**: Implementação no meio de lógica complexa
+3. **Experimental Code**: Código de teste/exploração não validado
+4. **Conflitos Não Resolvidos**: Merge conflicts pendentes
+
+#### **Formato de Sugestão de Commit**
+
+```markdown
+🔄 **Momento de Commit Detectado**
+
+**Contexto**: [Descrição do que foi implementado]
+**Validações**:
+- ✅ TypeScript compilation: OK
+- ✅ ESLint: No errors
+- ✅ Tests: Passing (coverage: X%)
+- ✅ Build: Successful
+
+**Mensagem de Commit Sugerida**:
+```
+<type>(<scope>): <description>
+
+<body com detalhes se necessário>
+```
+
+**Ações Sugeridas**:
+1. [ ] Review changes: `git diff`
+2. [ ] Stage files: `git add <files>`
+3. [ ] Commit: `git commit -m "<message>"`
+4. [ ] Push (se apropriado): `git push origin <branch>`
+
+Deseja prosseguir com o commit?
+```
+
+#### **Conventional Commits (Obrigatório)**
+
+**Formato**: `<type>(<scope>): <description>`
+
+**Types:**
+- `feat`: Nova feature (trigger CI/CD deploy)
+- `fix`: Bug fix (trigger CI/CD deploy)
+- `refactor`: Refatoração sem mudança de comportamento
+- `docs`: Documentação apenas
+- `test`: Adição/modificação de testes
+- `chore`: Configs, deps, build tools
+- `perf`: Performance improvements
+- `style`: Formatação de código (não afeta lógica)
+- `ci`: Mudanças em CI/CD workflows
+- `build`: Mudanças no sistema de build
+
+**Scopes Comuns:**
+- `core`: Funcionalidades core do e-commerce
+- `ui`: Componentes UI (shadcn/ui)
+- `api`: Integrações de API
+- `auth`: Autenticação/autorização
+- `checkout`: Fluxo de checkout
+- `admin`: Painel administrativo
+- `analytics`: Tracking e analytics
+- `infra`: Infraestrutura/Firebase
+
+**Exemplos:**
+```bash
+feat(checkout): add Mercado Pago payment integration
+fix(cart): resolve quantity update race condition
+refactor(ui): extract ProductCard to shadcn component
+docs(api): update Firebase contract examples
+test(checkout): add e2e tests for payment flow
+chore(deps): update Firebase SDK to v10.7.0
+perf(catalog): implement lazy loading for product images
+ci(workflow): add Lighthouse performance checks
+```
+
+#### **Git Workflow com CI/CD**
+
+**Branch Strategy (GitFlow):**
+```
+main (production)
+  ↑
+001-core-ecommerce (feature branch - staging)
+  ↑
+feature/specific-task (optional - development)
+```
+
+**Workflow de Desenvolvimento:**
+
+1. **Começar Task**:
+   ```bash
+   git checkout 001-core-ecommerce
+   git pull origin 001-core-ecommerce
+   # Opcional: criar branch específica
+   git checkout -b feature/task-name
+   ```
+
+2. **Durante Desenvolvimento**:
+   - Commits frequentes (a cada subtask completa)
+   - Mensagens descritivas seguindo Conventional Commits
+   - Validar testes antes de cada commit
+
+3. **Finalizar Task**:
+   ```bash
+   # Validar tudo está OK
+   npm run type-check
+   npm run lint
+   npm run test:ci
+   npm run build
+   
+   # Commit final
+   git add .
+   git commit -m "feat(scope): complete task description"
+   
+   # Push para branch feature
+   git push origin 001-core-ecommerce
+   ```
+
+4. **Trigger CI/CD**:
+   - Push para `001-core-ecommerce` → Deploy automático staging
+   - PR para `main` → Deploy production (após approval)
+
+**Checklist Pré-Commit:**
+- [ ] `npm run type-check` - Zero TypeScript errors
+- [ ] `npm run lint` - Zero ESLint errors  
+- [ ] `npm run test:ci` - All tests passing
+- [ ] `npm run build` - Build successful
+- [ ] Code review próprio - Diff faz sentido?
+- [ ] Commit message - Segue Conventional Commits?
+- [ ] Specs atualizadas - `tasks.md` reflete progresso?
+
+**Checklist Pré-Push:**
+- [ ] Todos commits locais são atômicos e descritivos?
+- [ ] Branch atualizada com origin?
+- [ ] CI/CD vai passar? (testes locais OK)
+- [ ] Breaking changes documentadas?
+- [ ] Secrets/tokens não commitados?
+
+#### **Integração com Speckit**
+
+**Sincronizar `tasks.md` com Commits:**
+- Cada task completada = 1+ commits
+- Marcar tasks como `[x]` em commit separado tipo `docs`
+- Adicionar link de commit relevante em tasks complexas
+
+**Exemplo de Fluxo:**
+```bash
+# Implementar task
+git commit -m "feat(checkout): implement payment validation logic"
+
+# Atualizar progress
+git commit -m "docs(spec): mark task 3.2 as complete in tasks.md"
+
+# Push para trigger CI/CD staging
+git push origin 001-core-ecommerce
+```
+
+#### **Situações Especiais**
+
+**Hotfix em Production:**
+```bash
+git checkout main
+git checkout -b hotfix/critical-bug
+# Fix + test
+git commit -m "fix(critical): resolve payment processing timeout"
+git push origin hotfix/critical-bug
+# PR direto para main (fast-track approval)
+```
+
+**Rollback de Deploy:**
+```bash
+# Via GitHub Actions manual workflow
+# Ou reverter commit específico
+git revert <commit-hash>
+git push origin main
+```
+
+**Stash para Context Switch:**
+```bash
+# Salvar trabalho incompleto
+git stash push -m "WIP: implementing feature X"
+
+# Trabalhar em outra coisa...
+
+# Retomar trabalho
+git stash pop
+```
 
 ## 🎯 Benefícios Estratégicos
 
@@ -258,7 +464,80 @@ specs/
 - **006** requer APIs estáveis
 - **007** pode ser independente (mobile separado)
 
-## 🔄 Evolução Baseada em Dados
+## � Planejamento Pós-Lançamento
+
+### **Priorização: MVP First, Then Polish**
+Após conclusão da **001-core-ecommerce**, focar em features que agregam valor imediato sem comprometer a estabilidade do produto.
+
+### **Fase 1: UX/UI Enhancements (Pós-MVP Imediato)**
+1. **Dark Mode Implementation**
+   - **Escopo**: Toggle de tema com persistência localStorage
+   - **Valor**: Melhor experiência noturna, redução de fadiga visual
+   - **Esforço**: 2-3 dias (infraestrutura já preparada)
+   - **Dependências**: CSS variables já configurados em `index.css`
+   - **Métricas**: >30% adoção, feedback positivo >4.5/5.0
+
+2. **Mobile Responsiveness Optimization**
+   - **Escopo**: Melhorar PWA experience, touch interactions
+   - **Valor**: Aumento conversão mobile (+40% esperado)
+   - **Esforço**: 1-2 dias de refinamentos
+   - **Dependências**: shadcn/ui já responsivo
+
+3. **Loading States & Micro-interactions**
+   - **Escopo**: Skeletons, loading spinners, hover effects
+   - **Valor**: Melhor percepção de performance
+   - **Esforço**: 1 dia por componente crítico
+
+### **Fase 2: Feature Enhancements (Pós-MVP +1 mês)**
+1. **Advanced Search & Filters**
+   - **Escopo**: Busca facetada, filtros avançados, sorting
+   - **Valor**: Redução bounce rate, aumento conversão
+   - **Esforço**: 3-5 dias
+   - **Dependências**: Dados de produtos já estruturados
+
+2. **User Personalization**
+   - **Escopo**: Recomendações baseadas em histórico
+   - **Valor**: Aumento cross-sell/up-sell
+   - **Esforço**: 4-6 dias
+   - **Dependências**: Analytics já implementado
+
+3. **Wishlist & Favorites**
+   - **Escopo**: Salvar produtos, notificações de preço
+   - **Valor**: Aumento retenção, repeat visits
+   - **Esforço**: 2-3 dias
+
+### **Fase 3: Technical Debt & Performance (Pós-MVP +2 meses)**
+1. **Performance Optimization**
+   - **Escopo**: Code splitting, lazy loading, caching avançado
+   - **Valor**: Core Web Vitals otimizados
+   - **Esforço**: 1-2 semanas
+   - **Métricas**: Lighthouse score >90
+
+2. **Advanced Analytics**
+   - **Escopo**: Funnels de conversão, cohort analysis
+   - **Valor**: Insights para decisões de produto
+   - **Esforço**: 3-5 dias
+   - **Dependências**: GA4 já configurado
+
+3. **A/B Testing Infrastructure**
+   - **Escopo**: Framework para testes de features
+   - **Valor**: Otimização baseada em dados
+   - **Esforço**: 1 semana
+
+### **Fase 4: Business Growth (Pós-MVP +3 meses)**
+1. **002-social-commerce**: Feed, likes, comentários
+2. **003-ai-automation**: Recomendações, banners dinâmicos
+3. **004-marketing-tools**: Cupons, programa de indicações
+4. **005-advanced-analytics**: Contabilidade, previsões
+
+### **Critérios para Adição de Features**
+- **Business Value**: ROI claro mensurável
+- **Technical Feasibility**: Alinhado com stack atual
+- **User Demand**: Validado por dados/analytics
+- **Effort Estimation**: <2 semanas para implementação
+- **Risk Assessment**: Baixo risco para produto estável
+
+## �🔄 Evolução Baseada em Dados
 
 Esta metodologia evolui através de:
 - **Retrospectives**: Lições aprendidas por feature
@@ -277,3 +556,6 @@ Esta metodologia evolui através de:
 - ✅ Workflow CI/CD com GitHub Actions e Lighthouse CI
 - ✅ Processo de correção de bugs documentado
 - ✅ Design system unificado com dark mode support
+- ✅ Planejamento pós-lançamento estruturado (4 fases)
+- ✅ GitHub Actions permissions configuradas para actions específicas
+- ✅ Protocolo de commits & Git workflow com sugestões proativas do agente AI

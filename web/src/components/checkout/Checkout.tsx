@@ -689,7 +689,7 @@ const CheckoutConfirmation: React.FC<CheckoutConfirmationProps> = ({
     if (item.product) {
       return sum + item.product.price * item.quantity;
     }
-    return sum + item.price * item.quantity;
+    return 0; // Skip items without product data
   }, 0);
 
   const shipping = order ? order.shipping.cost : subtotal > 100 ? 0 : 10;
@@ -752,7 +752,7 @@ const CheckoutConfirmation: React.FC<CheckoutConfirmationProps> = ({
                     {item.product?.name || item.productId} (x{item.quantity})
                   </span>
                   <span className="text-gray-900">
-                    {formatPrice((item.product?.price ?? item.price) * item.quantity)}
+                    {formatPrice((item.product?.price ?? 0) * item.quantity)}
                   </span>
                 </div>
               ))}

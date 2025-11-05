@@ -21,6 +21,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   priceRange,
   selectedPriceRange,
   sortBy,
+  searchTerm,
   onCategoryChange,
   onPriceRangeChange,
   onSortChange,

@@ -23,6 +23,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@/components/*": ["src/components/*"],
+      "@/lib/*": ["src/components/lib/*"],
+      "@/ui/*": ["src/components/ui/*"],
       "@/pages/*": ["src/pages/*"],
       "@/services/*": ["src/services/*"],
       "@/utils/*": ["src/utils/*"],
