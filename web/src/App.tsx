@@ -4,7 +4,16 @@ import { Catalog } from './pages/catalog';
 import { ProductDetail } from './pages/product';
 import { Cart } from './pages/cart';
 import { Checkout } from './pages/checkout';
+import SeedPage from './pages/admin/seed';
 import './App.css';
+
+// Debug environment variables
+console.log('Environment check:', {
+  firebaseApiKey: !!process.env.REACT_APP_FIREBASE_API_KEY,
+  firebaseProjectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  mercadoPagoToken: !!process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN,
+  melhorEnvioToken: !!process.env.REACT_APP_MELHOR_ENVIO_TOKEN,
+});
 
 function App() {
   return (
@@ -15,6 +24,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/admin/seed" element={<SeedPage />} />
         </Routes>
       </div>
     </Router>

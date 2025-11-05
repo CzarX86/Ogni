@@ -4,12 +4,15 @@ import { ProductGrid } from '../../components/catalog';
 import { ProductFilters } from '../../components/catalog';
 import { ProductService } from '../../services/productService';
 import { CategoryService } from '../../services/categoryService';
+import { SeedService } from '../../services/seedService';
+import { Button } from '../../components/ui/button';
 
 const Catalog: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [seeding, setSeeding] = useState(false);
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState<string>();
@@ -111,17 +114,51 @@ const Catalog: React.FC = () => {
     console.log('View details:', productId);
   };
 
+  const handleSeedDatabase = async () => {
+    try {
+      setSeeding(true);
+      console.log('Starting database seeding...');
+      const result = await SeedService.seedDatabase();
+      console.log('Seeding result:', result);
+      if (result.success) {
+        alert('Banco de dados populado com sucesso! Recarregue a página para ver os produtos.');
+        // Reload data
+        window.location.reload();
+      } else {
+        alert(`Erro ao popular banco: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Seeding error:', error);
+      alert('Erro ao popular banco de dados: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Catálogo de Produtos
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Descubra nossa seleção de produtos de qualidade
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Catálogo de Produtos
+              </h1>
+              <p className="text-gray-600 mt-2">
+                Descubra nossa seleção de produtos de qualidade
+              </p>
+            </div>
+            {products.length === 0 && !loading && (
+              <Button
+                onClick={handleSeedDatabase}
+                disabled={seeding}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {seeding ? 'Populando...' : 'Popular Banco de Dados'}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
