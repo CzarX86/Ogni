@@ -6,6 +6,9 @@ interface ProductTableProps {
   onEdit: (product: Product) => void;
   onDelete: (productId: string) => void;
   loading?: boolean;
+  selectedProducts?: string[];
+  onProductSelect?: (productId: string, selected: boolean) => void;
+  onSelectAll?: (selected: boolean) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -13,6 +16,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   onEdit,
   onDelete,
   loading = false,
+  selectedProducts = [],
+  onProductSelect,
+  onSelectAll,
 }) => {
   if (loading) {
     return (
@@ -39,6 +45,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
+            {onProductSelect && (
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <input
+                  type="checkbox"
+                  checked={selectedProducts.length === products.length && products.length > 0}
+                  onChange={(e) => onSelectAll?.(e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+              </th>
+            )}
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Produto
             </th>
@@ -59,6 +75,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         <tbody className="bg-white divide-y divide-gray-200">
           {products.map((product) => (
             <tr key={product.id} className="hover:bg-gray-50">
+              {onProductSelect && (
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    checked={selectedProducts.includes(product.id)}
+                    onChange={(e) => onProductSelect(product.id, e.target.checked)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                </td>
+              )}
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   {product.images && product.images.length > 0 && (

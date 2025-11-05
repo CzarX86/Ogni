@@ -4,6 +4,7 @@ import { AdminLayout } from '../../components/admin/AdminLayout';
 import { ProductTable } from '../../components/admin/products/ProductTable';
 import { ProductFilters } from '../../components/admin/products/ProductFilters';
 import { ProductForm } from '../../components/admin/products/ProductForm';
+import { BulkOperations } from '../../components/admin/products/BulkOperations';
 
 export const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -14,6 +15,7 @@ export const ProductList: React.FC = () => {
   ]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
 
   // Filters state
@@ -121,6 +123,59 @@ export const ProductList: React.FC = () => {
     setEditingProduct(undefined);
   };
 
+  const handleProductSelect = (productId: string, selected: boolean) => {
+    if (selected) {
+      setSelectedProducts(prev => [...prev, productId]);
+    } else {
+      setSelectedProducts(prev => prev.filter(id => id !== productId));
+    }
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedProducts(products.map(p => p.id));
+    } else {
+      setSelectedProducts([]);
+    }
+  };
+
+  const handleBulkDelete = (productIds: string[]) => {
+    setProducts(prev => prev.filter(p => !productIds.includes(p.id)));
+    setSelectedProducts([]);
+  };
+
+  const handleBulkUpdateCategory = (productIds: string[], categoryId: string) => {
+    setProducts(prev => prev.map(p =>
+      productIds.includes(p.id) ? { ...p, categoryId } : p
+    ));
+    setSelectedProducts([]);
+  };
+
+  const handleBulkUpdatePrice = (productIds: string[], priceAdjustment: number, adjustmentType: 'fixed' | 'percentage') => {
+    setProducts(prev => prev.map(p => {
+      if (!productIds.includes(p.id)) return p;
+
+      const newPrice = adjustmentType === 'fixed'
+        ? p.price + priceAdjustment
+        : p.price * (1 + priceAdjustment / 100);
+
+      return { ...p, price: Math.max(0, newPrice) };
+    }));
+    setSelectedProducts([]);
+  };
+
+  const handleBulkActivate = (productIds: string[]) => {
+    // Note: Product type doesn't have 'active' field, so this is a placeholder
+    console.log('Bulk activate products:', productIds);
+    setSelectedProducts([]);
+  };
+
+  const handleBulkDeactivate = (productIds: string[]) => {
+    // Note: Product type doesn't have 'active' field, so this is a placeholder
+    console.log('Bulk deactivate products:', productIds);
+    setSelectedProducts([]);
+  };
+
   const handleFormCancel = () => {
     setShowForm(false);
     setEditingProduct(undefined);
@@ -169,12 +224,26 @@ export const ProductList: React.FC = () => {
           onSortOrderChange={setSortOrder}
         />
 
+        {/* Bulk Operations */}
+        <BulkOperations
+          selectedProducts={products.filter(p => selectedProducts.includes(p.id))}
+          onBulkDelete={handleBulkDelete}
+          onBulkUpdateCategory={handleBulkUpdateCategory}
+          onBulkUpdatePrice={handleBulkUpdatePrice}
+          onBulkActivate={handleBulkActivate}
+          onBulkDeactivate={handleBulkDeactivate}
+          categories={categories}
+        />
+
         {/* Products Table */}
         <ProductTable
           products={filteredAndSortedProducts}
           onEdit={handleEdit}
           onDelete={handleDelete}
           loading={loading}
+          selectedProducts={selectedProducts}
+          onProductSelect={handleProductSelect}
+          onSelectAll={handleSelectAll}
         />
 
         {/* Summary */}
