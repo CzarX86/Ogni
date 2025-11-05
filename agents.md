@@ -1,6 +1,7 @@
 # Metodologia de Desenvolvimento: Features Independentes
 
-**Data**: November 4, 2025
+**Data**: November 5, 2025
+**Última Atualização**: Infraestrutura completa (Firebase + shadcn/ui)
 **Contexto**: Estratégia de desenvolvimento modular para projetos complexos
 **Baseado em**: Speckit framework + melhores práticas ágeis
 
@@ -10,7 +11,16 @@ Esta metodologia define **estratégias de desenvolvimento** com features indepen
 
 **Nota**: Este documento NÃO inclui funcionalidades nativas do Speckit como estrutura de specs, formato de tasks, ou processos padrão. Consulte a documentação do Speckit para essas informações.
 
-## 📋 Princípios Fundamentais
+## �️ Tecnologias Ativas
+
+- **Frontend**: TypeScript 5.x + React 18+ + shadcn/ui (16 componentes)
+- **Backend**: Firebase (Firestore, Auth, Hosting, Functions)
+- **Styling**: Tailwind CSS 4.x + CSS Variables + Dark Mode
+- **Build**: CRACO + PostCSS + TypeScript strict mode
+- **Testing**: Jest + React Testing Library + Contract tests
+- **CI/CD**: GitHub Actions + Firebase CLI + Lighthouse CI
+
+## �📋 Princípios Fundamentais
 
 ### **1. Features como Unidades Independentes**
 Cada feature deve ser:
@@ -164,6 +174,7 @@ specs/
 
 ### **Ferramentas Customizadas**
 - **Firebase**: Realtime DB, Auth, Hosting, Functions
+- **shadcn/ui**: Component library completa (16+ componentes) com design system consistente
 - **Analytics**: GA4 + Meta Pixel + CAPI + Custom events
 - **Payments**: Mercado Pago integration com webhooks
 - **Shipping**: Melhor Envio API com fallbacks
@@ -172,15 +183,40 @@ specs/
 
 ### **CI/CD Customizado**
 - **Branch Strategy**: GitFlow com feature branches protegidas
-- **Testing Strategy**: Contract tests + E2E + Performance
-- **Deploy Strategy**: Blue-green com feature flags
-- **Monitoring**: Custom dashboards por feature
+- **Testing Strategy**: Contract tests + E2E + Performance + TypeScript strict checking
+- **Deploy Strategy**: Blue-green com feature flags + GitHub Actions workflow
+- **Monitoring**: Custom dashboards por feature + Lighthouse CI para performance
+- **Quality Gates**: ESLint, Prettier, test coverage >80%, PWA validation
 
 ### **Documentação Específica**
 - **API Contracts**: OpenAPI 3.0 com exemplos reais
 - **Mobile Considerations**: PWA + app detection
 - **Performance Budgets**: Core Web Vitals targets
 - **Security**: Firebase rules + input validation
+- **UI Components**: shadcn/ui setup guide + custom variants
+
+## 🛠️ Processo de Desenvolvimento Técnico
+
+### **Setup de Infraestrutura**
+1. **Firebase Configuration**: Hosting público alterado para 'public', Firestore com localização nam5, Cloud Functions com predeploy hooks
+2. **shadcn/ui Implementation**: 16 componentes base instalados, design system com CSS variables, dark mode support, path aliases configurados
+3. **TypeScript Setup**: Strict mode, path aliases (@/components, @/lib, @/ui), isolated modules
+4. **Build Optimization**: CRACO para configuração customizada, PostCSS + Tailwind CSS
+
+### **Workflow de Correção de Bugs**
+1. **Identificação**: TypeScript errors, missing dependencies, incorrect prop types
+2. **Análise**: Verificar tipos de dados, estrutura de componentes, dependências instaladas
+3. **Correção**: Fix prop destructuring, install missing packages, update type definitions
+4. **Validação**: Build testing, linting, type checking antes do commit
+5. **Documentação**: Registrar padrões encontrados para evitar recorrência
+
+## 🎯 Benefícios Estratégicos
+
+### **Business Agility**
+- **Time to Market**: 60-80% mais rápido vs desenvolvimento tradicional
+- **Risk Mitigation**: Feature failure não compromete produto
+- **Market Adaptation**: Releases frequentes permitem pivôs
+- **Revenue Acceleration**: Valor entregue incrementalmente
 
 ## 🎯 Benefícios Estratégicos
 
@@ -195,12 +231,14 @@ specs/
 - **Scalability**: Arquitetura modular suporta crescimento
 - **Maintainability**: Dependências claras e documentadas
 - **Innovation**: Equipes podem experimentar sem risco
+- **UI Consistency**: shadcn/ui garante design system unificado
 
 ### **Team Productivity**
 - **Parallel Work**: Múltiplos devs em features diferentes
 - **Focus**: Cada um responsável por entrega completa
 - **Learning**: Especialização progressiva em domínios
 - **Motivation**: Conquistas frequentes e visíveis
+- **Developer Experience**: Hot reload, TypeScript strict, componentes reutilizáveis
 
 ## 📝 Casos de Uso no Ogni
 
@@ -232,3 +270,10 @@ Esta metodologia evolui através de:
 ---
 
 **Nota**: Este documento complementa o Speckit, não substitui. Foca em decisões estratégicas específicas do projeto Ogni e equipe.
+
+**Atualizações Recentes (Nov 5, 2025)**:
+- ✅ Implementação completa do shadcn/ui (16 componentes)
+- ✅ Configuração Firebase otimizada (hosting público, Firestore nam5)
+- ✅ Workflow CI/CD com GitHub Actions e Lighthouse CI
+- ✅ Processo de correção de bugs documentado
+- ✅ Design system unificado com dark mode support
