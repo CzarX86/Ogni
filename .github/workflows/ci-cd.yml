@@ -250,7 +250,7 @@ jobs:
         REACT_APP_ENVIRONMENT: ${{ github.event.inputs.environment }}
         REACT_APP_FIREBASE_PROJECT_ID: ${{ env.FIREBASE_PROJECT_ID }}
 
-    - name: '� Set Firebase service account'
+    - name: '🔧 Set Firebase service account'
       id: set-service-account
       run: |
         if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
@@ -262,7 +262,7 @@ jobs:
           exit 1
         fi
 
-    - name: '�🔥 Deploy to Firebase (${{ github.event.inputs.environment }})'
+    - name: '🔥 Deploy to Firebase (${{ github.event.inputs.environment }})'
       uses: FirebaseExtended/action-hosting-deploy@v0
       with:
         repoToken: '${{ secrets.GITHUB_TOKEN }}'
