@@ -6,12 +6,14 @@ module.exports = {
       webpackConfig.resolve.alias = {
         ...webpackConfig.resolve.alias,
         '@': path.resolve(__dirname, 'src'),
+        '@shared': path.resolve(__dirname, '../shared'),
       };
       return webpackConfig;
     },
   },
   jest: {
     configure: {
+      testEnvironment: 'jsdom',
       testMatch: [
         '<rootDir>/tests/**/*.{spec,test}.{js,jsx,ts,tsx}',
       ],
@@ -21,6 +23,7 @@ module.exports = {
       setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
+        '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
       },
       collectCoverageFrom: [
         'src/**/*.{js,jsx,ts,tsx}',

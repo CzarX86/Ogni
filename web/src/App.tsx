@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { MainLayout } from './components/shared/MainLayout';
 import { Catalog } from './pages/catalog';
 import { ProductDetail } from './pages/product';
 import { Cart } from './pages/cart';
 import { Checkout } from './pages/checkout';
+import { Auth } from './pages/auth/Auth';
+import { Profile } from './pages/account/Profile';
+import { OrderHistory } from './pages/account/OrderHistory';
+import FeedPage from './pages/feed/Feed';
 import { ProductList } from './pages/admin/ProductList';
 import SeedPage from './pages/admin/seed';
+import { initializeAnalytics } from './analytics/external';
 import './App.css';
 
 // Debug environment variables
@@ -17,19 +23,41 @@ console.log('Environment check:', {
 });
 
 function App() {
+  useEffect(() => {
+    // Initialize analytics on app start
+    initializeAnalytics().then((analyticsManager) => {
+      if (analyticsManager) {
+        console.log('Analytics initialized successfully');
+      } else {
+        console.warn('Analytics initialization failed');
+      }
+    });
+  }, []);
+
   return (
     <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Catalog />} />
-          <Route path="/catalog" element={<Catalog />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/admin/products" element={<ProductList />} />
-          <Route path="/admin/seed" element={<SeedPage />} />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Auth pages without layout */}
+        <Route path="/auth" element={<Auth />} />
+        
+        {/* All other pages with layout */}
+        <Route path="/*" element={
+          <MainLayout>
+            <Routes>
+              <Route path="/" element={<Catalog />} />
+              <Route path="/catalog" element={<Catalog />} />
+              <Route path="/feed" element={<FeedPage />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/orders" element={<OrderHistory />} />
+              <Route path="/admin/products" element={<ProductList />} />
+              <Route path="/admin/seed" element={<SeedPage />} />
+            </Routes>
+          </MainLayout>
+        } />
+      </Routes>
     </Router>
   );
 }

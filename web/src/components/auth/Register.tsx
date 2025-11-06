@@ -7,7 +7,7 @@ import { Input } from '../ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Alert, AlertDescription } from '../ui/alert';
 import { UserService } from '../../services/userService';
-import { RegisterData } from '../../../../shared/types';
+import { RegisterData } from '@/shared/types';
 
 interface RegisterFormData {
   email: string;

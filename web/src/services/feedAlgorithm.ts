@@ -1,4 +1,4 @@
-import { FeedAlgorithm, Product, FeedItem, ProductLike, UserInteraction } from '../../../shared/types';
+import { FeedAlgorithm, Product, FeedItem, ProductLike, UserInteraction } from '@/shared/types';
 import { log } from '../utils/logger';
 
 export class FeedPersonalizationAlgorithm {

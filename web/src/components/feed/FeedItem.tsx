@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FeedItem as FeedItemType } from '../../../../shared/types';
+import { FeedItem as FeedItemType } from '@/shared/types';
 import { SocialService } from '../../services/socialService';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';

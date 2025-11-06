@@ -2,33 +2,58 @@
 
 ## 🎯 Overview
 
-This document establishes the design system guidelines for the Ogni e-commerce platform, combining shadcn/ui components with custom Ogni-specific components. The guidelines ensure consistency, maintainability, and brand alignment across all features.
+This document establishes the design system guidelines for the Ogni e-commerce platform, combining shadcn/ui components with custom Ogni-specific components. The guidelines ensure consistência, maintainability, and a premium brand expression aligned with Ogni’s semi-jóias positioning.
 
 ## 🎨 Brand Identity Integration
 
 ### Color Palette
-The design system integrates Ogni's brand colors with shadcn/ui's theme system:
+The design system now anchors on Ogni's jewelry palette taken from the physical packaging reference (olive carriers, metallic studs, warm ivory logotype, fabric background). These values drive both the shadcn/ui tokens and any custom Tailwind utilities.
 
-#### Primary Colors
-- **Brand Primary**: `hsl(var(--ogni-primary-500))` - Core brand color
-- **Brand Secondary**: `hsl(var(--ogni-secondary-500))` - Supporting brand color
-- **Success**: `hsl(var(--ogni-accent-success))` - 120° hue for positive actions
-- **Warning**: `hsl(var(--ogni-accent-warning))` - 45° hue for warnings
-- **Error**: `hsl(var(--ogni-accent-error))` - 0° hue for errors
-- **Info**: `hsl(var(--ogni-accent-info))` - 200° hue for information
+#### Brand Core Palette
+| Element               | Name          | Hex      | HSL                | CSS variable           | Primary usage                                     |
+|-----------------------|---------------|----------|--------------------|------------------------|---------------------------------------------------|
+| Fundo (cartela)       | Ogni Olive    | `#4A4E3E` | `hsl(75, 11%, 27%)` | `--ogni-brand-olive`   | Primary surfaces (cards, badges, emphasis blocks) |
+| Logo (tipografia)     | Ogni Ivory    | `#E8E3D9` | `hsl(40, 25%, 88%)` | `--ogni-brand-ivory`   | Logotype, primary text over olive backgrounds     |
+| Brinco                | Ogni Gold     | `#D4AF37` | `hsl(46, 65%, 52%)` | `--ogni-brand-gold`    | Highlights, CTAs, icon accents                    |
+| Fundo (tecido)        | Ogni Frost    | `#F4F1EB` | `hsl(40, 29%, 94%)` | `--ogni-brand-frost`   | Page background, neutral sections, modals         |
 
-#### Neutral Colors
-- **Background**: `hsl(var(--background))` - Page backgrounds
-- **Foreground**: `hsl(var(--foreground))` - Text and icons
-- **Card**: `hsl(var(--card))` - Card backgrounds
-- **Border**: `hsl(var(--border))` - Border colors
-- **Muted**: `hsl(var(--muted))` - Secondary content
+#### Implementation Notes
+- Declare the palette as HSL triplets in `:root` so tokens can be consumed via `hsl(var(--ogni-brand-olive))` without conversion at runtime.
+- Provide paired variables for light/dark if needed (e.g., `--ogni-brand-olive-foreground: var(--ogni-brand-ivory)`).
+- Keep the existing semantic accent tokens (`--ogni-accent-success`, `--ogni-accent-warning`, etc.) and map them to derivatives of the core palette when appropriate.
+
+```css
+:root {
+  --ogni-brand-olive: 75 11% 27%;  /* #4A4E3E */
+  --ogni-brand-ivory: 40 25% 88%;  /* #E8E3D9 */
+  --ogni-brand-gold: 46 65% 52%;   /* #D4AF37 */
+  --ogni-brand-frost: 40 29% 94%;  /* #F4F1EB */
+  --ogni-brand-olive-foreground: var(--ogni-brand-ivory);
+  --ogni-brand-frost-foreground: 240 5% 15%; /* keep text readable on light fabric background */
+}
+```
+
+#### Usage Guidance
+- Leverage `Ogni Olive` as the primary brand color for hero sections, product cards, and other premium surfaces; it should pair with `Ogni Ivory` for highest contrast typography.
+- Use `Ogni Frost` as the default application background in light mode and as a base layer for forms or content groupings.
+- Apply `Ogni Gold` sparingly to drive focus (CTA buttons, price highlights, accent icons); outline-only versions remain acceptable for subtle interactions.
+- Reserve `Ogni Ivory` for logotypes, secondary backgrounds inside olive blocks, and supporting text on darker elements.
+- Validate contrast (WCAG AA+) for each combination, especially `Ogni Gold` on `Ogni Olive`; when contrast is insufficient, fall back to `Ogni Ivory`.
+
+### Supporting Neutrals
+- **Soft Charcoal**: `hsl(120, 4%, 20%)` – subtle text accent over light surfaces; variable suggestion `--ogni-neutral-charcoal`.
+- **Misty Taupe**: `hsl(35, 18%, 75%)` – separators, outlines, muted text on dark sections; variable suggestion `--ogni-neutral-taupe`.
+- **Deep Moss**: `hsl(70, 14%, 18%)` – dark mode surface for hero/footer; variable suggestion `--ogni-neutral-moss`.
 
 ### Typography System
-- **Primary Font**: System font stack (as defined in existing CSS)
-- **Headings**: Use shadcn/ui's typography components with custom sizing
-- **Body**: Standard system font with appropriate line heights
-- **Monospace**: For code and technical content
+- **Headings**: `Playfair Display` (500–700) para reforçar sofisticação; fallback `Georgia, serif`.
+- **Body**: `Inter` (300–600) mantém legibilidade em e-commerce; fallback `system-ui`.
+- **UI Details**: `Inter` uppercase/letter-spacing 0.22em para labels e badges finas.
+- **Line Heights**: Títulos 1.15 (tight luxury), corpo 1.6, legendas 1.4.
+- **Pairings**:
+  - H1/H2 serif + copy em Inter leve define contraste clássico.
+  - Botões usam Inter semi-bold com tracking reduzido para impacto premium.
+- **Implementation**: importar via CSS (`@import` Google Fonts) e expor tokens `--font-sans`, `--font-serif` para Tailwind/shadcn.
 
 ## 🧩 Component Architecture
 
@@ -194,6 +219,12 @@ function CustomButton({ className, ...props }: ButtonProps) {
 - Test components at all breakpoints
 - Consider mobile-first approach
 
+### Imagery & Art Direction
+- Fotografia macro com foco no brilho do banho dourado; fundo em tecido leve (`Ogni Frost`) ou cenas lifestyle minimalistas.
+- Utilizar recortes 4:5 em cards e 16:9/3:2 em banners para consistência visual.
+- Overlays de texto sempre com gradiente suave (`Ogni Olive` → transparente) para garantir contraste.
+- Aplicar vinhetas leves (shadow interna) em hero para destacar produto.
+
 ## 🧪 Component Standards
 
 ### Props Interface Guidelines
@@ -231,6 +262,8 @@ interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
 - Apply shadcn/ui's container patterns
 - Maintain consistent gutters and margins
 - Use responsive grid systems
+- Padrão homepage: hero full-bleed (col-start 1 / col-span 12) seguido de módulos 3-4 cards com `gap-10` em desktop e `gap-6` mobile.
+- Conteúdo editorial (histórias de coleção) usa grid assimétrico: 2 colunas com imagens altas + CTA lateral, inspirado em vitrines físicas.
 
 ### Container Patterns
 ```tsx
@@ -318,6 +351,37 @@ Each component should include:
 - [ ] Includes proper TypeScript types
 - [ ] Follows naming conventions
 - [ ] Includes necessary documentation
+- [ ] Novos tokens de estilo referenciados em `index.css` e `tailwind.config.ts`
+- [ ] Componentes demonstram estados hover/focus consistentes (especialmente CTAs dourados)
+
+## 🪞 Semi-Jóias Experience Playbook
+
+### Homepage Flow
+- **Hero Editorial**: Fotografia 4k com produto em destaque, headline serifada e CTA “Ver Coleção”. Utilizar `Ogni Olive` como fundo ou overlay translúcido.
+- **Faixa de Benefícios**: Marquee discreto listando garantia, banho antialérgico, frete; texto em Inter uppercase, `Ogni Gold`.
+- **Coleções Curadas**: Módulo 3-up com imagens altas (dois cards) + bloco editorial apresentando inspiração (cores, ocasião).
+- **Prova Social**: Widget Trustvox/avalições logo após primeiro carrossel de produtos.
+- **Newsletter Luxo**: Fundo `Ogni Olive`, título serif, copy curta e botão outline dourado.
+
+### Produto & Merchandising
+- Cards exibem: foto principal + hover alternativo, label “Banho em Ouro 18k”, preço parcelado, selo “Hipoalergênico”.
+- Badges (`Badge` component) usam `Ogni Gold` outline + texto `Ogni Olive` para versões claras; invertidos quando sobre fundo escuro.
+- Variações de tamanho/diâmetro acessíveis via `ToggleGroup` horizontal; estados focus visíveis.
+- “Comprar em Conjunto” apresenta combinações curadas, preço total, economia e CTA `ghost` com ícone minimalista.
+
+### Microinterações
+- Hover em CTA sólido: elevação + mudança para tom metálico (#dcb84a) com `transition-colors 200ms`.
+- `ProductCard` aplica `hover:-translate-y-1` + sombra suave (0 20px 48px -20px rgba(74,78,62,0.45)).
+- Animar marquee com `animate-[marquee_15s_linear_infinite]` e texto com tracking 0.3em.
+
+### Copywriting Notas
+- Foco em exclusividade, artesania e facilidade (“Peças banhadas a ouro 18k, produzidas no Brasil”).
+- Evitar jargões técnicos; preferir frases curtas, em português, que reforcem benefícios (garantia, antialérgico, entrega expressa).
+
+### A11y & Inclusão
+- Contraste mínimo AA garantido: `Ogni Gold` sobre `Ogni Olive` para ícones, mas usar `Ogni Ivory` para texto.
+- Tamanhos de fonte: 16px base, CTAs 18px, labels 12px uppercase.
+- Estados focus: outline 2px em `Ogni Gold` sobre superfícies escuras e `Ogni Olive` sobre claras.
 
 ## 🔄 Maintenance and Evolution
 

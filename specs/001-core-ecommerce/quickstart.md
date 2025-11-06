@@ -75,6 +75,9 @@ FIREBASE_AUTH_DOMAIN=your_domain
 FIREBASE_PROJECT_ID=ogni-project
 MERCADO_PAGO_ACCESS_TOKEN=your_token
 MELHOR_ENVIO_API_KEY=your_key
+REACT_APP_GA_MEASUREMENT_ID=your_ga_id
+REACT_APP_META_PIXEL_ID=your_pixel_id
+REACT_APP_EMAIL_API_KEY=your_email_key
 ```
 
 ### 4. Run Locally
@@ -112,12 +115,20 @@ firebase deploy
 - `web/src/sw.js`: Service worker for offline functionality and push notifications
 - `web/src/hooks/useAppInstalled.js`: Hook for detecting mobile app installation
 - `web/src/analytics/`: Analytics tracking utilities and event handlers
+- `web/src/analytics/external/`: External analytics services (GA4, Meta Pixel, CAPI)
 - `web/src/hooks/useAnalytics.js`: Hook for user engagement tracking
 - `web/src/components/Feed/`: Feed components with infinite scroll
+- `web/src/components/reviews/`: Review system components (ReviewList, ReviewForm)
+- `web/src/components/gdpr/`: GDPR compliance components (consent banner, data rights)
 - `web/src/hooks/useFeed.js`: Hook for feed data and interactions
 - `web/src/algorithms/feedAlgorithm.js`: Feed personalization algorithm
 - `shared/`: Common types and utilities
+- `shared/services/reviewService.ts`: Review management service
+- `shared/services/emailService.ts`: Email notification service
+- `shared/utils/security.ts`: Security utilities and GDPR compliance
+- `shared/models/review.ts`: Review data models
 - `firebase/`: Backend functions and rules
+- `web/tests/unit/test-review-service.test.ts`: Unit tests for review service
 
 ## Development Workflow
 

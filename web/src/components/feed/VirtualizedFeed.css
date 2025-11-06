@@ -1,0 +1,13 @@
+/* Virtualized Feed Styles */
+.virtualized-feed-container {
+  overflow: auto;
+}
+
+.virtualized-feed-content {
+  position: relative;
+}
+
+.virtualized-feed-item {
+  position: absolute;
+  width: 100%;
+}

@@ -1,0 +1,1 @@
+export { GDPRConsentBanner, DataRightsPanel } from './GDPRCompliance';

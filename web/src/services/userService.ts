@@ -1,5 +1,5 @@
-import { HttpApiClient } from '../../../shared/services/api';
-import { User, UserProfile, Order, AuthResult, RegisterData, LoginData } from '../../../shared/types';
+import { HttpApiClient } from '@/shared/services/api';
+import { User, UserProfile, Order, AuthResult, RegisterData, LoginData } from '@/shared/types';
 
 export class UserService {
   private static readonly BASE_URL = '/users';
@@ -117,6 +117,25 @@ export class UserService {
       return response.data as { message: string };
     } catch (error) {
       console.error('Error initiating password reset:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Change user password
+   */
+  static async changePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+    try {
+      const response = await HttpApiClient.put(`${this.AUTH_URL}/change-password`, {
+        currentPassword,
+        newPassword,
+      });
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to change password');
+      }
+      return response.data as { message: string };
+    } catch (error) {
+      console.error('Error changing password:', error);
       throw error;
     }
   }

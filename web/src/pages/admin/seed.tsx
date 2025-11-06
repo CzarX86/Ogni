@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SeedService } from '../../services/seedService';
-import OgniLayout from '../../components/shared/ogni-layout';
+import OgniLayout from '@/components/shared/ogni-layout';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 

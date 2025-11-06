@@ -9,12 +9,8 @@ import {
   Search,
   Menu,
   Heart,
-  Store,
-  Bell,
+  Sparkles,
   UserCircle,
-  ShoppingBag,
-  Settings,
-  LogOut
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -23,264 +19,208 @@ interface NavbarProps {
   searchQuery?: string;
 }
 
+const navItems = [
+  { href: '/', label: 'Coleções' },
+  { href: '/catalog', label: 'Loja' },
+  { href: '/feed', label: 'Stories' },
+];
+
 export const Navbar: React.FC<NavbarProps> = ({
   cartItemCount = 0,
   onSearch,
-  searchQuery = ''
+  searchQuery = '',
 }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [localSearchQuery, setLocalSearchQuery] = React.useState(searchQuery);
-  const [notifications] = React.useState(3); // Mock notifications count
+  const [localSearchQuery, setLocalSearchQuery] =
+    React.useState(searchQuery);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSearch) {
-      onSearch(localSearchQuery);
-    }
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    onSearch?.(localSearchQuery);
   };
 
   const handleSearchChange = (value: string) => {
     setLocalSearchQuery(value);
-    if (onSearch) {
-      onSearch(value);
-    }
+    onSearch?.(value);
   };
 
+  const closeMenu = () => setIsMenuOpen(false);
+
   return (
-    <nav className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-100/50 sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 rounded-2xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-xl shadow-blue-500/25">
-              <Store className="h-7 w-7 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent">
-                Ogni
-              </span>
-              <span className="text-xs text-gray-500 -mt-1 font-medium">Compre com inteligência</span>
-            </div>
-          </Link>
+    <nav className="sticky top-0 z-50 border-b border-border/60 bg-background/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:gap-8">
+        <Link
+          to="/"
+          className="flex items-center gap-3 transition-transform hover:scale-[1.01]"
+        >
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-primary/50 bg-white shadow-ogni">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <span className="absolute inset-0 rounded-full border border-primary/20" />
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="font-serif text-2xl font-semibold text-gradient-ogni">
+              Ogni
+            </span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.4em] text-secondary/70">
+              Semi-jóias
+            </span>
+          </div>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-2">
+        <div className="hidden flex-1 items-center justify-end gap-10 lg:flex">
+          <div className="flex items-center gap-6">
+            {navItems.map(({ href, label }) => (
               <Link
-                to="/"
-                className="px-4 py-2 text-gray-700 hover:text-primary font-medium transition-all duration-200 relative group rounded-lg hover:bg-primary/5"
+                key={href}
+                to={href}
+                className="group relative text-sm font-medium tracking-[0.12em] text-foreground/70 transition-colors hover:text-foreground"
               >
-                Início
-                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
+                {label}
+                <span className="absolute -bottom-2 left-0 h-px w-0 bg-primary transition-all duration-300 group-hover:w-full" />
               </Link>
-              <Link
-                to="/catalog"
-                className="px-4 py-2 text-gray-700 hover:text-primary font-medium transition-all duration-200 relative group rounded-lg hover:bg-primary/5"
-              >
-                Produtos
-                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
-              </Link>
-              <Link
-                to="/feed"
-                className="px-4 py-2 text-gray-700 hover:text-primary font-medium transition-all duration-200 relative group rounded-lg hover:bg-primary/5"
-              >
-                Feed
-                <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
-              </Link>
-            </div>
-
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-200" />
-                <Input
-                  type="text"
-                  placeholder="Buscar produtos, marcas..."
-                  value={localSearchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-12 pr-4 w-96 h-12 bg-gray-50/80 border-gray-200/50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 rounded-full shadow-sm hover:shadow-md"
-                />
-              </div>
-            </form>
+            ))}
           </div>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center space-x-2">
-            {/* Notifications */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative group hover:bg-primary/5 transition-all duration-200 rounded-full"
-            >
-              <Bell className="h-5 w-5 text-gray-600 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
-              {notifications > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs font-bold bg-gradient-to-r from-red-500 to-pink-500 border-0 animate-bounce"
-                >
-                  {notifications}
-                </Badge>
-              )}
-            </Button>
+          <form onSubmit={handleSearch} className="relative w-80">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/50" />
+            <Input
+              type="search"
+              value={localSearchQuery}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              placeholder="Buscar por peça, banho ou coleção"
+              className="h-11 w-full rounded-full border-border/60 bg-white pl-11 pr-4 text-sm text-foreground placeholder:text-foreground/40 focus:border-primary focus:ring-0"
+            />
+          </form>
+        </div>
 
-            {/* Wishlist */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative group hover:bg-primary/5 transition-all duration-200 rounded-full"
-            >
-              <Heart className="h-5 w-5 text-gray-600 group-hover:text-red-500 group-hover:scale-110 transition-all duration-200" />
-            </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden h-11 w-11 items-center justify-center rounded-full border border-transparent text-secondary hover:border-secondary/30 lg:flex"
+            aria-label="Lista de desejos"
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
 
-            {/* Cart */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/cart')}
-              className="relative group hover:bg-primary/5 transition-all duration-200 rounded-full"
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/cart')}
+            className="relative h-11 w-11 items-center justify-center rounded-full border border-secondary/30 text-secondary hover:border-secondary/60"
+            aria-label="Abrir carrinho"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {cartItemCount > 0 && (
+              <Badge
+                variant="default"
+                className="absolute -right-1 -top-1 px-2 py-0 text-[10px]"
+              >
+                {cartItemCount > 99 ? '99+' : cartItemCount}
+              </Badge>
+            )}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/auth')}
+            className="hidden items-center gap-2 rounded-full border border-transparent px-4 text-sm text-foreground/80 hover:border-secondary/30 hover:text-foreground lg:flex"
+          >
+            <Avatar className="h-8 w-8 border border-secondary/40">
+              <AvatarImage src="" alt="Usuário" />
+              <AvatarFallback className="bg-secondary/10 text-secondary">
+                OG
+              </AvatarFallback>
+            </Avatar>
+            <span className="tracking-[0.12em]">Entrar</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-1 flex h-11 w-11 items-center justify-center rounded-full border border-secondary/20 text-secondary hover:border-secondary/40 lg:hidden"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            aria-label="Abrir menu"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+
+      {isMenuOpen && (
+        <div className="border-t border-border/60 bg-background/98 px-4 pb-6 pt-4 shadow-ogni lg:hidden">
+          <form onSubmit={handleSearch} className="relative mb-4">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/50" />
+            <Input
+              type="search"
+              value={localSearchQuery}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              placeholder="Buscar semi-jóias"
+              className="h-11 w-full rounded-full border-border/60 bg-white pl-11 pr-4 text-sm focus:border-primary focus:ring-0"
+            />
+          </form>
+
+          <div className="flex flex-col divide-y divide-border/60">
+            {navItems.map(({ href, label }) => (
+              <Link
+                key={href}
+                to={href}
+                onClick={closeMenu}
+                className="flex items-center justify-between py-3 text-sm font-medium tracking-[0.16em] text-foreground/70 transition-colors hover:text-foreground"
+              >
+                {label}
+                <span className="text-xs text-secondary/60">↗</span>
+              </Link>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                closeMenu();
+                navigate('/cart');
+              }}
+              className="flex items-center justify-between py-3 text-sm font-medium tracking-[0.16em] text-foreground/70 transition-colors hover:text-foreground"
             >
-              <ShoppingCart className="h-5 w-5 text-gray-600 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
+              Carrinho
               {cartItemCount > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 border-0 animate-pulse"
-                >
-                  {cartItemCount > 99 ? '99+' : cartItemCount}
-                </Badge>
+                <Badge variant="default">{cartItemCount}</Badge>
               )}
-            </Button>
+            </button>
+          </div>
 
-            {/* User Account */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center space-x-2 hover:bg-primary/5 transition-all duration-200 rounded-full px-3"
-            >
-              <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-                <AvatarImage src="" alt="User" />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-sm">
-                  JD
+          <div className="mt-6 rounded-2xl border border-border/70 bg-white/70 p-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10 border border-secondary/40">
+                <AvatarImage src="" alt="Usuário" />
+                <AvatarFallback className="bg-secondary/10 text-secondary">
+                  OG
                 </AvatarFallback>
               </Avatar>
-            </Button>
-
-            {/* Mobile Menu Button */}
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  Bem-vinda à Ogni
+                </p>
+                <p className="text-xs tracking-[0.2em] text-secondary/70 uppercase">
+                  Clube de vantagens exclusivo
+                </p>
+              </div>
+            </div>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="lg:hidden hover:bg-primary/5 transition-all duration-200 rounded-full"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => {
+                closeMenu();
+                navigate('/auth');
+              }}
+              className="mt-4 w-full justify-center gap-2"
             >
-              <Menu className="h-6 w-6 text-gray-600" />
+              <UserCircle className="h-4 w-4" />
+              Acessar conta
             </Button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-100/50 py-6 animate-in slide-in-from-top duration-300 bg-white/95 backdrop-blur-lg">
-            <div className="space-y-6">
-              {/* Mobile Search */}
-              <form onSubmit={handleSearch} className="px-4">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Buscar produtos..."
-                    value={localSearchQuery}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                    className="pl-12 pr-4 w-full h-12 bg-gray-50/80 border-gray-200/50 rounded-full shadow-sm"
-                  />
-                </div>
-              </form>
-
-              {/* Mobile Navigation Links */}
-              <div className="flex flex-col space-y-1 px-4">
-                <Link
-                  to="/"
-                  className="text-gray-700 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-xl font-medium flex items-center space-x-3"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span className="text-lg">🏠</span>
-                  <span>Início</span>
-                </Link>
-                <Link
-                  to="/catalog"
-                  className="text-gray-700 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-xl font-medium flex items-center space-x-3"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span className="text-lg">🛍️</span>
-                  <span>Produtos</span>
-                </Link>
-                <Link
-                  to="/feed"
-                  className="text-gray-700 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-xl font-medium flex items-center space-x-3"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span className="text-lg">📱</span>
-                  <span>Feed</span>
-                </Link>
-                <Link
-                  to="/cart"
-                  className="text-gray-700 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-xl font-medium flex items-center space-x-3 relative"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span className="text-lg">🛒</span>
-                  <span>Carrinho</span>
-                  {cartItemCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="ml-auto bg-gradient-to-r from-green-500 to-emerald-500 border-0"
-                    >
-                      {cartItemCount}
-                    </Badge>
-                  )}
-                </Link>
-              </div>
-
-              {/* Mobile User Actions */}
-              <div className="border-t border-gray-100/50 pt-6 px-4">
-                <div className="flex items-center space-x-3 mb-4">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="" alt="User" />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-                      JD
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">João Silva</p>
-                    <p className="text-xs text-gray-500">cliente@exemplo.com</p>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Button variant="ghost" className="w-full justify-start hover:bg-primary/5">
-                    <UserCircle className="mr-3 h-4 w-4" />
-                    Meu Perfil
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-primary/5">
-                    <ShoppingBag className="mr-3 h-4 w-4" />
-                    Meus Pedidos
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-primary/5">
-                    <Heart className="mr-3 h-4 w-4" />
-                    Favoritos
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-primary/5">
-                    <Settings className="mr-3 h-4 w-4" />
-                    Configurações
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-red-50 text-red-600">
-                    <LogOut className="mr-3 h-4 w-4" />
-                    Sair
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </nav>
   );
 };

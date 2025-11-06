@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../../types';
 import { formatPrice } from '../../utils/format';
+import { ReviewList, ReviewForm } from '../reviews';
 
 interface ProductDetailProps {
   product: Product;
@@ -231,6 +232,31 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             <p className="text-gray-700 leading-relaxed">
               {product.description}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-12 border-t border-gray-200 pt-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">
+          Avaliações dos Clientes
+        </h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Review List */}
+          <div>
+            <ReviewList productId={product.id} />
+          </div>
+
+          {/* Review Form */}
+          <div>
+            <ReviewForm
+              productId={product.id}
+              onReviewSubmitted={() => {
+                // Refresh reviews list when a new review is submitted
+                window.location.reload();
+              }}
+            />
           </div>
         </div>
       </div>
