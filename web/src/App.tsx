@@ -4,6 +4,7 @@ import { Catalog } from './pages/catalog';
 import { ProductDetail } from './pages/product';
 import { Cart } from './pages/cart';
 import { Checkout } from './pages/checkout';
+import { ProductList } from './pages/admin/ProductList';
 import SeedPage from './pages/admin/seed';
 import './App.css';
 
@@ -21,9 +22,11 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<Catalog />} />
+          <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/admin/products" element={<ProductList />} />
           <Route path="/admin/seed" element={<SeedPage />} />
         </Routes>
       </div>

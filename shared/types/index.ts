@@ -220,3 +220,92 @@ export interface CheckoutForm {
   };
   paymentMethod: 'pix' | 'card';
 }
+
+// Feed-related types for User Story 4
+export interface FeedItem {
+  product: Product;
+  socialStats: {
+    likes: number;
+    comments: number;
+    shares: number;
+    isLiked: boolean;
+    isSaved: boolean;
+  };
+  algorithmScore?: number;
+  feedPosition?: number;
+}
+
+export interface FeedResponse {
+  items: FeedItem[];
+  nextOffset: number;
+  hasMore: boolean;
+  personalization: {
+    userId?: string;
+    algorithm: 'trending' | 'personalized' | 'collaborative' | 'random';
+    factors: string[];
+  };
+}
+
+export interface FeedAlgorithm {
+  id: string;
+  name: string;
+  description: string;
+  factors: {
+    userHistory: number;
+    categoryPreference: number;
+    trending: number;
+    collaborative: number;
+    random: number;
+  };
+  isActive: boolean;
+}
+
+// Social interaction types for User Story 4
+export interface SocialStats {
+  likes: number;
+  comments: number;
+  shares: number;
+  total: number;
+}
+
+export interface LikeResponse {
+  likes: ProductLike[];
+  count: number;
+}
+
+export interface CommentResponse {
+  comments: ProductComment[];
+  nextOffset: number;
+  total: number;
+}
+
+export interface ShareResponse {
+  shares: ProductShare[];
+  count: number;
+}
+
+// Account management types for User Story 3
+export interface UserProfile {
+  phone?: string;
+  address?: {
+    street: string;
+    city: string;
+    zip: string;
+  };
+}
+
+export interface AuthResult {
+  user: User;
+  token: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  displayName: string;
+}
+
+export interface LoginData {
+  email: string;
+  password: string;
+}

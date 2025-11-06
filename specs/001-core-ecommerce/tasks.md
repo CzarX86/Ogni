@@ -128,26 +128,26 @@ Based on plan.md structure:
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T048 [P] [US4] Contract test for feed API in web/tests/contract/test-feed-api.ts
-- [ ] T049 [P] [US4] Contract test for social interactions API in web/tests/contract/test-social-api.ts
-- [ ] T050 [P] [US4] Integration test for feed discovery flow in web/tests/integration/test-feed-discovery.ts
+- [X] T048 [P] [US4] Contract test for feed API in web/tests/contract/test-feed-api.ts
+- [X] T049 [P] [US4] Contract test for social interactions API in web/tests/contract/test-social-api.ts
+- [X] T050 [P] [US4] Integration test for feed discovery flow in web/tests/integration/test-feed-discovery.ts
 
 ### Implementation for User Story 4
 
-- [ ] T051 [P] [US4] Create ProductLike model in shared/models/productLike.ts
-- [ ] T052 [P] [US4] Create FeedInteraction model in shared/models/feedInteraction.ts
-- [ ] T053 [P] [US4] Create ProductComment model in shared/models/productComment.ts
-- [ ] T054 [P] [US4] Create ProductShare model in shared/models/productShare.ts
-- [ ] T055 [P] [US4] Create Wishlist model in shared/models/wishlist.ts
-- [ ] T056 [US4] Implement FeedService with personalization algorithm in shared/services/feedService.ts
-- [ ] T057 [US4] Implement SocialService for likes/comments/shares in shared/services/socialService.ts
-- [ ] T058 [US4] Implement WishlistService in shared/services/wishlistService.ts
-- [ ] T059 [P] [US4] Create feed components with infinite scroll in web/src/components/feed/
-- [ ] T060 [P] [US4] Create social interaction components in web/src/components/social/
-- [ ] T061 [P] [US4] Create wishlist components in web/src/components/wishlist/
-- [ ] T062 [US4] Implement feed page in web/src/pages/Feed.tsx
-- [ ] T063 [US4] Implement feed personalization algorithm in shared/algorithms/feedAlgorithm.ts
-- [ ] T064 [US4] Add collaborative filtering logic in shared/algorithms/collaborativeFiltering.ts
+- [X] T051 [P] [US4] Create ProductLike model in shared/models/productLike.ts
+- [X] T052 [P] [US4] Create FeedInteraction model in shared/models/feedInteraction.ts
+- [X] T053 [P] [US4] Create ProductComment model in shared/models/productComment.ts
+- [X] T054 [P] [US4] Create ProductShare model in shared/models/productShare.ts
+- [X] T055 [P] [US4] Create Wishlist model in shared/models/wishlist.ts
+- [X] T056 [US4] Implement FeedService with personalization algorithm in shared/services/feedService.ts
+- [X] T057 [US4] Implement SocialService for likes/comments/shares in shared/services/socialService.ts
+- [X] T058 [US4] Implement WishlistService in shared/services/wishlistService.ts
+- [X] T059 [P] [US4] Create feed components with infinite scroll in web/src/components/feed/
+- [X] T060 [P] [US4] Create social interaction components in web/src/components/social/
+- [X] T061 [P] [US4] Create wishlist components in web/src/components/wishlist/
+- [X] T062 [US4] Implement feed page in web/src/pages/Feed.tsx
+- [X] T063 [US4] Implement feed personalization algorithm in shared/algorithms/feedAlgorithm.ts
+- [X] T064 [US4] Add collaborative filtering logic in shared/algorithms/collaborativeFiltering.ts
 - [ ] T065 [US4] Add feed analytics tracking in web/src/analytics/feedEvents.ts
 - [ ] T066 [US4] Add push notifications for social interactions in web/src/services/notificationService.ts
 - [ ] T067 [US4] Optimize feed performance with virtual scrolling
@@ -164,20 +164,20 @@ Based on plan.md structure:
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T068 [P] [US3] Contract test for user account API in web/tests/contract/test-user-api.ts
-- [ ] T069 [P] [US3] Integration test for account management flow in web/tests/integration/test-account-flow.ts
+- [x] T068 [P] [US3] Contract test for user account API in web/tests/contract/test-user-api.ts
+- [x] T069 [P] [US3] Integration test for account management flow in web/tests/integration/test-account-flow.ts
 
 ### Implementation for User Story 3
 
-- [ ] T070 [P] [US3] Create User model in shared/models/user.ts
-- [ ] T071 [US3] Implement UserService in shared/services/userService.ts
-- [ ] T072 [P] [US3] Create authentication components in web/src/components/auth/
+- [x] T070 [P] [US3] Create User model in shared/models/user.ts
+- [x] T071 [US3] Implement UserService in shared/services/userService.ts
+- [x] T072 [P] [US3] Create authentication components in web/src/components/auth/
 - [ ] T073 [P] [US3] Create account management components in web/src/components/account/
-- [ ] T074 [US3] Implement login/register page in web/src/pages/auth/Auth.tsx
-- [ ] T075 [US3] Implement account profile page in web/src/pages/account/Profile.tsx
-- [ ] T076 [US3] Implement order history page in web/src/pages/account/OrderHistory.tsx
+- [x] T074 [US3] Implement login/register page in web/src/pages/auth/Auth.tsx
+- [x] T075 [US3] Implement account profile page in web/src/pages/account/Profile.tsx
+- [x] T076 [US3] Implement order history page in web/src/pages/account/OrderHistory.tsx
 - [ ] T077 [US3] Add profile analytics tracking in web/src/analytics/profileEvents.ts
-- [ ] T078 [US3] Add mobile app detection functionality in web/src/hooks/useAppInstalled.ts
+- [x] T078 [US3] Add mobile app detection functionality in web/src/hooks/useAppInstalled.ts
 
 **Checkpoint**: All user stories should now be independently functional
 
