@@ -206,6 +206,40 @@ Based on plan.md structure:
 
 ---
 
+## 📋 **RECOMENDAÇÕES PRÉ-PRODUÇÃO**
+
+### **🎯 Implementar Antes de Produção (Dados Críticos)**
+
+Antes de declarar o MVP completamente production-ready, recomendamos implementar os seguintes serviços com **dados reais**:
+
+#### **Por que implementar agora?**
+- **Melhor Envio**: Clientes precisam ver custos de frete reais durante checkout
+- **Email Service**: Notificações de pedidos são expectativa básica do e-commerce
+- **Impacto**: Sem frete real, checkout fica incompleto. Sem emails, UX fica prejudicada.
+
+#### **Tasks Adicionais para Finalização:**
+
+- [ ] **T095** Implement Melhor Envio API real in shared/services/shippingService.ts **[CRÍTICO]** - Substituir token placeholder por token real da Melhor Envio API
+- [ ] **T096** Setup email service provider (SendGrid/Mailgun) in shared/services/emailService.ts **[CRÍTICO]** - Configurar SMTP real para notificações de pedidos
+- [ ] **T097** Add order confirmation emails in shared/services/emailService.ts **[IMPORTANTE]** - Templates de email para confirmação de pedidos
+- [ ] **T098** Add shipping cost calculation validation **[IMPORTANTE]** - Testes reais de cálculo de frete
+- [ ] **T099** Update environment variables with real API keys **[CRÍTICO]** - Atualizar .env com tokens reais
+
+#### **Tasks Opcionais (Pode vir depois):**
+- [ ] **T100** Implement AI Service real with LangChain **[FEATURE]** - Conectar com API real de IA
+- [ ] **T101** Implement WhatsApp chatbot real **[FEATURE]** - Integração real com WhatsApp Business API
+- [ ] **T102** Advanced recommendation algorithms **[FEATURE]** - Algoritmos de ML reais
+
+### **🚀 Estratégia de Lançamento Recomendada**
+
+1. **AGORA**: Implementar T095-T099 (1-2 dias)
+2. **TESTAR**: Validar frete e emails funcionam
+3. **DEPLOY**: Lançar MVP completo
+4. **MONITORAR**: Coletar feedback dos primeiros usuários
+5. **ITERAR**: Melhorar baseado em dados reais
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -296,10 +330,10 @@ With multiple developers:
 
 ## 📊 **STATUS DA IMPLEMENTAÇÃO - SPEC 001 CORE E-COMMERCE**
 
-### ✅ **COMPLETAMENTE IMPLEMENTADA** (94/94 tasks)
+### ✅ **CORE IMPLEMENTADO** (94/94 tasks base)
 
 **Data de Conclusão**: November 6, 2025  
-**Status**: ✅ **PRODUCTION READY**
+**Status**: ⚠️ **QUASE PRODUCTION-READY** (faltam 5 tasks críticas)
 
 ### 🎯 **Funcionalidades Implementadas**
 
@@ -347,7 +381,7 @@ With multiple developers:
 
 #### **Integrações**: Mercado Pago + Melhor Envio ✅
 - Mercado Pago: **DADOS REAIS** (tokens configurados)
-- Melhor Envio: **MOCKADO** (token placeholder)
+- Melhor Envio: **MOCKADO** (token placeholder) ⚠️
 - Google Analytics + Meta Pixel: **DADOS REAIS**
 
 #### **Qualidade**: Testes + Analytics ✅
@@ -367,10 +401,10 @@ With multiple developers:
 - ✅ Reviews e comentários
 - ✅ Deploy Firebase Hosting/Functions
 
-#### **DADOS MOCKADOS** (Desenvolvimento):
-- ⚠️ Melhor Envio (token placeholder)
+#### **DADOS MOCKADOS** (Aguardando implementação):
+- ⚠️ **Melhor Envio** (CRÍTICO - implementar T095)
+- ⚠️ **Email Service** (CRÍTICO - implementar T096-T097)
 - ⚠️ AI Service (simulação LangChain)
-- ⚠️ Email Service (sem SMTP real)
 - ⚠️ Chatbot WhatsApp (interface mockada)
 - ⚠️ Alguns algoritmos de recomendação
 
@@ -384,13 +418,9 @@ With multiple developers:
 
 ### 🎯 **Resultado Final**
 
-A **spec 001-core-ecommerce está 100% implementada** e pronta para produção. Todas as 94 tasks foram concluídas com:
+A **spec 001-core-ecommerce está 94% implementada**. Faltam apenas **5 tasks críticas** para production-ready completo:
 
-- **4 User Stories** completamente funcionais
-- **Infraestrutura robusta** com Firebase
-- **Integrações reais** com gateways de pagamento
-- **Qualidade de código** com testes abrangentes
-- **Experiência do usuário** polida e moderna
-- **Analytics e tracking** implementados
+- **3 tasks CRÍTICAS**: Melhor Envio real + Email Service real
+- **2 tasks IMPORTANTES**: Validação + configuração ambiente
 
-**🎉 MVP ALCANÇADO: E-commerce completo e escalável!**
+**🎯 PRÓXIMO PASSO**: Implementar T095-T099 antes do lançamento oficial!
