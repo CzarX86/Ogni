@@ -65,6 +65,29 @@ REACT_APP_FIREBASE_APP_ID=1:XXXXXXXXXXXX:web:XXXXXXXXXXXXXXXXXXXX
 
 ---
 
+## SendGrid Email Setup
+
+### 1. Access SendGrid Dashboard
+- Go to: https://app.sendgrid.com
+- Sign up or log in to your SendGrid account
+
+### 2. Create API Key
+- Go to "Settings" → "API Keys"
+- Click "Create API Key"
+- Choose "Full Access" or "Restricted Access" (with Mail Send permissions)
+- Copy the generated API key
+
+### 3. Verify Sender Identity
+- Go to "Settings" → "Sender Authentication"
+- Add and verify your domain or single sender
+
+### 4. Update .env.local
+```bash
+REACT_APP_SENDGRID_API_KEY=SG.XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+---
+
 ## Testing Configuration
 
 After adding all tokens:
@@ -78,11 +101,12 @@ Check browser console for any Firebase/Mercado Pago errors. If everything loads 
 
 ---
 
-## Production Deployment
+### Production Deployment
 
 For production, these tokens should be added to GitHub Secrets:
 - `MERCADO_PAGO_ACCESS_TOKEN`
 - `MELHOR_ENVIO_TOKEN`
+- `SENDGRID_API_KEY`
 - `FIREBASE_SERVICE_ACCOUNT` (for Firebase Admin SDK)
 
 The Firebase project ID and other config will be automatically handled by the CI/CD pipeline.</content>
