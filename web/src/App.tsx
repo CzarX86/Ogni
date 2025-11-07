@@ -11,7 +11,6 @@ import { OrderHistory } from './pages/account/OrderHistory';
 import FeedPage from './pages/feed/Feed';
 import { ProductList } from './pages/admin/ProductList';
 import SeedPage from './pages/admin/seed';
-import { initializeAnalytics } from './analytics/external';
 import { log } from 'shared/utils/logger';
 import { AuthProvider } from './hooks/useAuth';
 import './App.css';
@@ -26,14 +25,14 @@ log.debug('Environment check:', {
 
 function App() {
   useEffect(() => {
-    // Initialize analytics on app start
-    initializeAnalytics().then((analyticsManager) => {
-      if (analyticsManager) {
-        log.info('Analytics initialized successfully');
-      } else {
-        log.warn('Analytics initialization failed');
-      }
-    });
+    // Temporarily disable analytics initialization to avoid script errors
+    // initializeAnalytics().then((analyticsManager) => {
+    //   if (analyticsManager) {
+    //     log.info('Analytics initialized successfully');
+    //   } else {
+    //     log.warn('Analytics initialization failed');
+    //   }
+    // });
   }, []);
 
   return (

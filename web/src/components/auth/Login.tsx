@@ -7,7 +7,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Alert, AlertDescription } from '../ui/alert';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../services/firebase/config';
 
 interface LoginFormData {
@@ -70,6 +70,23 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, redirectTo = '/' }) => 
     }
   };
 
+  const handleCreateTestUser = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await createUserWithEmailAndPassword(auth, 'test@example.com', 'test123');
+      // Auto login after creation
+      await signInWithEmailAndPassword(auth, 'test@example.com', 'test123');
+      onSuccess?.();
+      navigate(redirectTo);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create test user');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
@@ -116,6 +133,17 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, redirectTo = '/' }) => 
                 {t('auth.continueWithGoogle')}
               </div>
             )}
+          </Button>
+
+          {/* Test User Creation Button */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-dashed"
+            onClick={handleCreateTestUser}
+            disabled={isLoading || isGoogleLoading}
+          >
+            {isLoading ? 'Criando usuário...' : 'Criar usuário de teste (test@example.com)'}
           </Button>
 
           <div className="relative">

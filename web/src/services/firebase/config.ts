@@ -2,8 +2,9 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import { getMessaging } from 'firebase/messaging';
-import { getAnalytics } from 'firebase/analytics';
+// Temporarily disable messaging and analytics imports
+// import { getMessaging } from 'firebase/messaging';
+// import { getAnalytics } from 'firebase/analytics';
 
 // Re-export Firebase functions for shared services
 export {
@@ -54,7 +55,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const messaging = getMessaging(app);
-export const analytics = getAnalytics(app);
+// Temporarily disable messaging and analytics to avoid script errors
+// export const messaging = getMessaging(app);
+// export const analytics = getAnalytics(app);
 
 export default app;

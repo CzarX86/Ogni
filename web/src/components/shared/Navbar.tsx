@@ -35,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   searchQuery = '',
 }) => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [localSearchQuery, setLocalSearchQuery] =
     React.useState(searchQuery);
@@ -50,10 +50,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     onSearch?.(value);
   };
 
-  const handleLogout = async () => {
+    const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -143,9 +142,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hidden items-center gap-2 rounded-full border border-transparent px-4 text-sm text-foreground/80 hover:border-secondary/30 hover:text-foreground lg:flex"
           >
             <Avatar className="h-8 w-8 border border-secondary/40">
-              <AvatarImage src={user?.photoURL || ''} alt="Usuário" />
-              <AvatarFallback className="bg-secondary/10 text-secondary">
-                {user?.displayName?.charAt(0)?.toUpperCase() || 'OG'}
+              <AvatarImage 
+                src={user?.photoURL || ''} 
+                alt={user?.displayName || 'Usuário'} 
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-secondary/10 text-secondary font-semibold">
+                {isAuthenticated 
+                  ? (user?.displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U')
+                  : 'OG'
+                }
               </AvatarFallback>
             </Avatar>
             <span className="tracking-[0.12em]">
@@ -208,9 +214,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <div className="mt-6 rounded-2xl border border-border/70 bg-white/70 p-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border border-secondary/40">
-                <AvatarImage src={user?.photoURL || ''} alt="Usuário" />
-                <AvatarFallback className="bg-secondary/10 text-secondary">
-                  {user?.displayName?.charAt(0)?.toUpperCase() || 'OG'}
+                <AvatarImage 
+                  src={user?.photoURL || ''} 
+                  alt={user?.displayName || 'Usuário'} 
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-secondary/10 text-secondary font-semibold">
+                  {isAuthenticated 
+                    ? (user?.displayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U')
+                    : 'OG'
+                  }
                 </AvatarFallback>
               </Avatar>
               <div>
