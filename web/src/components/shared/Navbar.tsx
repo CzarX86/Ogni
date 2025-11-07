@@ -11,7 +11,11 @@ import {
   Heart,
   Sparkles,
   UserCircle,
+  LogOut,
 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../services/firebase/config';
 
 interface NavbarProps {
   cartItemCount?: number;
@@ -31,6 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   searchQuery = '',
 }) => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [localSearchQuery, setLocalSearchQuery] =
     React.useState(searchQuery);
@@ -43,6 +48,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleSearchChange = (value: string) => {
     setLocalSearchQuery(value);
     onSearch?.(value);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const closeMenu = () => setIsMenuOpen(false);
@@ -129,12 +143,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hidden items-center gap-2 rounded-full border border-transparent px-4 text-sm text-foreground/80 hover:border-secondary/30 hover:text-foreground lg:flex"
           >
             <Avatar className="h-8 w-8 border border-secondary/40">
-              <AvatarImage src="" alt="Usuário" />
+              <AvatarImage src={user?.photoURL || ''} alt="Usuário" />
               <AvatarFallback className="bg-secondary/10 text-secondary">
-                OG
+                {user?.displayName?.charAt(0)?.toUpperCase() || 'OG'}
               </AvatarFallback>
             </Avatar>
-            <span className="tracking-[0.12em]">Entrar</span>
+            <span className="tracking-[0.12em]">
+              {isAuthenticated ? user?.displayName || 'Usuário' : 'Entrar'}
+            </span>
           </Button>
 
           <Button
@@ -189,35 +205,47 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-border/70 bg-white/70 p-4">
+                    <div className="mt-6 rounded-2xl border border-border/70 bg-white/70 p-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border border-secondary/40">
-                <AvatarImage src="" alt="Usuário" />
+                <AvatarImage src={user?.photoURL || ''} alt="Usuário" />
                 <AvatarFallback className="bg-secondary/10 text-secondary">
-                  OG
+                  {user?.displayName?.charAt(0)?.toUpperCase() || 'OG'}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  Bem-vinda à Ogni
+                  {isAuthenticated ? `Olá, ${user?.displayName || 'Usuário'}` : 'Bem-vinda à Ogni'}
                 </p>
                 <p className="text-xs tracking-[0.2em] text-secondary/70 uppercase">
-                  Clube de vantagens exclusivo
+                  {isAuthenticated ? 'Conta conectada' : 'Clube de vantagens exclusivo'}
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                closeMenu();
-                navigate('/auth');
-              }}
-              className="mt-4 w-full justify-center gap-2"
-            >
-              <UserCircle className="h-4 w-4" />
-              Acessar conta
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="mt-4 w-full justify-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  closeMenu();
+                  navigate('/auth');
+                }}
+                className="mt-4 w-full justify-center gap-2"
+              >
+                <UserCircle className="h-4 w-4" />
+                Acessar conta
+              </Button>
+            )}
           </div>
         </div>
       )}

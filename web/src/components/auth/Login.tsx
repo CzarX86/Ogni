@@ -7,8 +7,8 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Alert, AlertDescription } from '../ui/alert';
-import { AuthService } from '../../services/authService';
-import { LoginData } from '@/shared/types';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../../services/firebase/config';
 
 interface LoginFormData {
   email: string;
@@ -39,12 +39,7 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, redirectTo = '/' }) => 
     setError(null);
 
     try {
-      const loginData: LoginData = {
-        email: data.email,
-        password: data.password,
-      };
-
-      await AuthService.login(loginData);
+      await signInWithEmailAndPassword(auth, data.email, data.password);
 
       onSuccess?.();
       navigate(redirectTo);
@@ -60,7 +55,12 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, redirectTo = '/' }) => 
     setError(null);
 
     try {
-      await AuthService.loginWithGoogle();
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+
+      await signInWithPopup(auth, provider);
       onSuccess?.();
       navigate(redirectTo);
     } catch (err) {

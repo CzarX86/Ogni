@@ -13,6 +13,7 @@ import { ProductList } from './pages/admin/ProductList';
 import SeedPage from './pages/admin/seed';
 import { initializeAnalytics } from './analytics/external';
 import { log } from 'shared/utils/logger';
+import { AuthProvider } from './hooks/useAuth';
 import './App.css';
 
 // Debug environment variables
@@ -36,30 +37,32 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        {/* Auth pages without layout */}
-        <Route path="/auth" element={<Auth />} />
-        
-        {/* All other pages with layout */}
-        <Route path="/*" element={
-          <MainLayout>
-            <Routes>
-              <Route path="/" element={<Catalog />} />
-              <Route path="/catalog" element={<Catalog />} />
-              <Route path="/feed" element={<FeedPage />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/orders" element={<OrderHistory />} />
-              <Route path="/admin/products" element={<ProductList />} />
-              <Route path="/admin/seed" element={<SeedPage />} />
-            </Routes>
-          </MainLayout>
-        } />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Auth pages without layout */}
+          <Route path="/auth" element={<Auth />} />
+          
+          {/* All other pages with layout */}
+          <Route path="/*" element={
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<Catalog />} />
+                <Route path="/catalog" element={<Catalog />} />
+                <Route path="/feed" element={<FeedPage />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/orders" element={<OrderHistory />} />
+                <Route path="/admin/products" element={<ProductList />} />
+                <Route path="/admin/seed" element={<SeedPage />} />
+              </Routes>
+            </MainLayout>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
