@@ -5,7 +5,7 @@ import { Card } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
-import { log } from '../../utils/logger';
+import { log } from 'shared/utils/logger';
 import { useFeedPerformance } from '../../hooks/useFeedPerformance';
 import './VirtualizedFeed.css';
 
@@ -29,6 +29,53 @@ interface VirtualItem {
   style: React.CSSProperties;
 }
 
+// Loading skeleton component
+const LoadingSkeleton: React.FC<{ containerHeight: number; itemHeight: number }> = ({ containerHeight, itemHeight }) => (
+  <div className="space-y-4">
+    {Array.from({ length: Math.ceil(containerHeight / itemHeight) }).map((_, i) => (
+      <Card key={i} className="p-4">
+        <div className="flex space-x-4">
+          <Skeleton className="h-48 w-48 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-1/4" />
+            <div className="flex space-x-2 mt-4">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+          </div>
+        </div>
+      </Card>
+    ))}
+  </div>
+);
+
+// Error state component
+const ErrorState: React.FC<{ error: string | null; onRefresh: () => void }> = ({ error, onRefresh }) => (
+  <div className="flex flex-col items-center justify-center py-12">
+    <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+    <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load feed</h3>
+    <p className="text-gray-600 mb-4 text-center max-w-md">{error}</p>
+    <Button onClick={onRefresh} variant="outline">
+      <RefreshCw className="h-4 w-4 mr-2" />
+      Try Again
+    </Button>
+  </div>
+);
+
+// Empty state component
+const EmptyState: React.FC = () => (
+  <div className="flex flex-col items-center justify-center py-12">
+    <div className="text-6xl mb-4">🛍️</div>
+    <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
+    <p className="text-gray-600 text-center max-w-md">
+      We're working on adding more amazing products to your feed. Check back soon!
+    </p>
+  </div>
+);
+
 export const VirtualizedFeed: React.FC<VirtualizedFeedProps> = ({
   items,
   loading,
@@ -36,14 +83,13 @@ export const VirtualizedFeed: React.FC<VirtualizedFeedProps> = ({
   error,
   hasMore,
   onLoadMore,
-  onRefresh,
+  onRefresh: _onRefresh,
   itemHeight = 300, // Estimated height for feed items
   containerHeight = 800,
   overscan = 5,
   className = ''
 }) => {
   const [scrollTop, setScrollTop] = useState(0);
-  const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
   const scrollElementRef = useRef<HTMLDivElement>(null);
 
   // Performance tracking
@@ -129,57 +175,10 @@ export const VirtualizedFeed: React.FC<VirtualizedFeedProps> = ({
   // Calculate total height
   const totalHeight = items.length * itemHeight;
 
-  // Loading skeleton component
-  const LoadingSkeleton = () => (
-    <div className="space-y-4">
-      {Array.from({ length: Math.ceil(containerHeight / itemHeight) }).map((_, i) => (
-        <Card key={i} className="p-4">
-          <div className="flex space-x-4">
-            <Skeleton className="h-48 w-48 rounded-lg" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-4 w-1/4" />
-              <div className="flex space-x-2 mt-4">
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-8 w-16" />
-              </div>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
-  );
-
-  // Error state component
-  const ErrorState = () => (
-    <div className="flex flex-col items-center justify-center py-12">
-      <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load feed</h3>
-      <p className="text-gray-600 mb-4 text-center max-w-md">{error}</p>
-      <Button onClick={onRefresh} variant="outline">
-        <RefreshCw className="h-4 w-4 mr-2" />
-        Try Again
-      </Button>
-    </div>
-  );
-
-  // Empty state component
-  const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-12">
-      <div className="text-6xl mb-4">🛍️</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
-      <p className="text-gray-600 text-center max-w-md">
-        We're working on adding more amazing products to your feed. Check back soon!
-      </p>
-    </div>
-  );
-
   if (loading && items.length === 0) {
     return (
       <div className={className}>
-        <LoadingSkeleton />
+        <LoadingSkeleton containerHeight={containerHeight} itemHeight={itemHeight} />
       </div>
     );
   }
@@ -187,7 +186,7 @@ export const VirtualizedFeed: React.FC<VirtualizedFeedProps> = ({
   if (error && items.length === 0) {
     return (
       <div className={className}>
-        <ErrorState />
+        <ErrorState error={error} onRefresh={_onRefresh} />
       </div>
     );
   }

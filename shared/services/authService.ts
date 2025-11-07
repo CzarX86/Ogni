@@ -5,10 +5,14 @@ import {
   onAuthStateChanged,
   User,
   updateProfile,
-  sendPasswordResetEmail
-} from 'firebase/auth';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../../web/src/services/firebase/config';
+  sendPasswordResetEmail,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  auth,
+  db
+} from '../../web/src/services/firebase/config';
 
 export interface UserProfile {
   uid: string;

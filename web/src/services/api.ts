@@ -1,22 +1,24 @@
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
   orderBy,
   limit,
   startAfter,
-  Query,
+  DocumentData,
   QueryDocumentSnapshot,
-  DocumentData
+  Query,
+  WhereFilterOp
 } from 'firebase/firestore';
 import { db } from '../services/firebase/config';
 import { ApiResponse } from '../types';
+import { log } from 'shared/utils/logger';
 
 export class ApiClient {
   // Generic get document
@@ -31,7 +33,7 @@ export class ApiClient {
         return null;
       }
     } catch (error) {
-      console.error(`Error getting document from ${collectionName}:`, error);
+      log.error(`Error getting document from ${collectionName}:`, { error });
       throw error;
     }
   }
@@ -42,7 +44,7 @@ export class ApiClient {
       const querySnapshot = await getDocs(collection(db, collectionName));
       return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
     } catch (error) {
-      console.error(`Error getting collection ${collectionName}:`, error);
+      log.error(`Error getting collection ${collectionName}:`, { error });
       throw error;
     }
   }
@@ -50,7 +52,7 @@ export class ApiClient {
   // Generic query with filters
   static async queryCollection<T>(
     collectionName: string, 
-    filters: { field: string; operator: any; value: any }[] = [],
+    filters: { field: string; operator: WhereFilterOp; value: unknown }[] = [],
     orderByField?: string,
     orderDirection: 'asc' | 'desc' = 'desc',
     limitCount?: number
@@ -76,7 +78,7 @@ export class ApiClient {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
     } catch (error) {
-      console.error(`Error querying collection ${collectionName}:`, error);
+      log.error(`Error querying collection ${collectionName}:`, { error });
       throw error;
     }
   }
@@ -87,7 +89,7 @@ export class ApiClient {
       const docRef = await addDoc(collection(db, collectionName), data);
       return docRef.id;
     } catch (error) {
-      console.error(`Error creating document in ${collectionName}:`, error);
+      log.error(`Error creating document in ${collectionName}:`, { error });
       throw error;
     }
   }
@@ -96,9 +98,9 @@ export class ApiClient {
   static async updateDocument<T>(collectionName: string, id: string, data: Partial<T>): Promise<void> {
     try {
       const docRef = doc(db, collectionName, id);
-      await updateDoc(docRef, data as any);
+      await updateDoc(docRef, data as Partial<DocumentData>);
     } catch (error) {
-      console.error(`Error updating document in ${collectionName}:`, error);
+      log.error(`Error updating document in ${collectionName}:`, { error });
       throw error;
     }
   }
@@ -109,7 +111,7 @@ export class ApiClient {
       const docRef = doc(db, collectionName, id);
       await deleteDoc(docRef);
     } catch (error) {
-      console.error(`Error deleting document from ${collectionName}:`, error);
+      log.error(`Error deleting document from ${collectionName}:`, { error });
       throw error;
     }
   }
@@ -142,7 +144,7 @@ export class ApiClient {
         lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1]
       };
     } catch (error) {
-      console.error(`Error getting paginated collection ${collectionName}:`, error);
+      log.error(`Error getting paginated collection ${collectionName}:`, { error });
       throw error;
     }
   }
@@ -162,12 +164,12 @@ export class HttpApiClient {
         message: response.ok ? undefined : data.message
       };
     } catch (error) {
-      console.error(`HTTP GET error for ${endpoint}:`, error);
+      log.error(`HTTP GET error for ${endpoint}:`, { error });
       throw error;
     }
   }
 
-  static async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+  static async post<T>(endpoint: string, body: unknown): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'POST',
@@ -183,12 +185,12 @@ export class HttpApiClient {
         message: response.ok ? undefined : data.message
       };
     } catch (error) {
-      console.error(`HTTP POST error for ${endpoint}:`, error);
+      log.error(`HTTP POST error for ${endpoint}:`, { error });
       throw error;
     }
   }
 
-  static async put<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+  static async put<T>(endpoint: string, body: unknown): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'PUT',
@@ -204,7 +206,7 @@ export class HttpApiClient {
         message: response.ok ? undefined : data.message
       };
     } catch (error) {
-      console.error(`HTTP PUT error for ${endpoint}:`, error);
+      log.error(`HTTP PUT error for ${endpoint}:`, { error });
       throw error;
     }
   }
@@ -221,7 +223,7 @@ export class HttpApiClient {
         message: response.ok ? undefined : data.message
       };
     } catch (error) {
-      console.error(`HTTP DELETE error for ${endpoint}:`, error);
+      log.error(`HTTP DELETE error for ${endpoint}:`, { error });
       throw error;
     }
   }

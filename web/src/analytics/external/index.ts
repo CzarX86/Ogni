@@ -2,6 +2,8 @@
 // This file contains configuration for external analytics services
 // In production, these values should be loaded from environment variables
 
+import { log } from 'shared/utils/logger';
+
 export const analyticsConfig = {
   // Google Analytics 4
   googleAnalytics: {
@@ -34,25 +36,25 @@ export const initializeAnalytics = async () => {
 
   try {
     await manager.initialize(analyticsConfig);
-    console.log('Analytics initialized successfully');
+    log.info('Analytics initialized successfully');
     return manager;
   } catch (error) {
-    console.error('Failed to initialize analytics:', error);
+    log.error('Failed to initialize analytics:', { error });
     // Don't throw - analytics failure shouldn't break the app
     return null;
   }
 };
 
 // Analytics tracking helpers
-export const trackPageView = (pagePath?: string, pageTitle?: string) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackPageView = async (pagePath?: string, pageTitle?: string) => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackPageView(pagePath, pageTitle);
   }
 };
 
-export const trackProductView = (product: {
+export const trackProductView = async (product: {
   id: string;
   name: string;
   category: string;
@@ -60,14 +62,14 @@ export const trackProductView = (product: {
   brand?: string;
   currency?: string;
 }) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackProductView(product);
   }
 };
 
-export const trackAddToCart = (product: {
+export const trackAddToCart = async (product: {
   id: string;
   name: string;
   category: string;
@@ -76,14 +78,14 @@ export const trackAddToCart = (product: {
   brand?: string;
   currency?: string;
 }) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackAddToCart(product);
   }
 };
 
-export const trackPurchase = (order: {
+export const trackPurchase = async (order: {
   id: string;
   total: number;
   tax?: number;
@@ -98,63 +100,63 @@ export const trackPurchase = (order: {
     brand?: string;
   }>;
 }) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackPurchase(order);
   }
 };
 
-export const trackSearch = (searchTerm: string, resultsCount?: number) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackSearch = async (searchTerm: string, resultsCount?: number) => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackSearch(searchTerm, resultsCount);
   }
 };
 
-export const trackLogin = (method: string) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackLogin = async (method: string) => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackLogin(method);
   }
 };
 
-export const trackSignUp = (method: string) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackSignUp = async (method: string) => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackSignUp(method);
   }
 };
 
-export const trackFlashSaleInteraction = (saleId: string, action: 'view' | 'click' | 'purchase') => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackFlashSaleInteraction = async (saleId: string, action: 'view' | 'click' | 'purchase') => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackFlashSaleInteraction(saleId, action);
   }
 };
 
-export const trackBlogInteraction = (postId: string, action: 'view' | 'read' | 'share' | 'comment') => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackBlogInteraction = async (postId: string, action: 'view' | 'read' | 'share' | 'comment') => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackBlogInteraction(postId, action);
   }
 };
 
-export const trackChatInteraction = (action: 'start' | 'message' | 'whatsapp_handoff') => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackChatInteraction = async (action: 'start' | 'message' | 'whatsapp_handoff') => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackChatInteraction(action);
   }
 };
 
-export const trackCustomEvent = (eventName: string, parameters?: Record<string, any>) => {
-  const { AnalyticsManager } = require('./AnalyticsManager');
+export const trackCustomEvent = async (eventName: string, parameters?: Record<string, unknown>) => {
+  const { AnalyticsManager } = await import('./AnalyticsManager');
   const manager = AnalyticsManager.getInstance();
   if (manager.isReady()) {
     manager.trackCustomEvent(eventName, parameters);

@@ -12,9 +12,10 @@ export class SeedService {
     // But we'll still create an admin user document for consistency
     try {
       await signInAnonymously(auth);
-    } catch (e: any) {
+    } catch (e: unknown) {
       // If anonymous auth fails, try with dev credentials
-      if (e?.code === 'auth/operation-not-allowed' || e?.code === 'auth/configuration-not-found') {
+      const error = e as { code?: string };
+      if (error?.code === 'auth/operation-not-allowed' || error?.code === 'auth/configuration-not-found') {
         const email = process.env.REACT_APP_DEV_ADMIN_EMAIL;
         const password = process.env.REACT_APP_DEV_ADMIN_PASSWORD;
 
@@ -25,20 +26,21 @@ export class SeedService {
 
         try {
           await signInWithEmailAndPassword(auth, email, password);
-        } catch (err: any) {
-          if (err?.code === 'auth/user-not-found') {
+        } catch (err: unknown) {
+          const error = err as { code?: string };
+          if (error?.code === 'auth/user-not-found') {
             await createUserWithEmailAndPassword(auth, email, password);
-          } else if (err?.code === 'auth/invalid-credential') {
+          } else if (error?.code === 'auth/invalid-credential') {
             await createUserWithEmailAndPassword(auth, email, password);
-          } else if (err?.code === 'auth/weak-password') {
+          } else if (error?.code === 'auth/weak-password') {
             throw new Error('REACT_APP_DEV_ADMIN_PASSWORD must be at least 6 characters');
           } else {
-            log.warn('Authentication failed, but proceeding since Firestore rules allow anonymous access:', err);
+            log.warn('Authentication failed, but proceeding since Firestore rules allow anonymous access:', { error: err });
             return null; // Skip authentication
           }
         }
       } else {
-        log.warn('Anonymous auth failed, but proceeding since Firestore rules allow access:', e);
+        log.warn('Anonymous auth failed, but proceeding since Firestore rules allow access:', { error: e });
         return null; // Skip authentication
       }
     }
@@ -85,7 +87,7 @@ export class SeedService {
           const payload = {
             ...category,
             parentId: category.parentId ? categoryIds[category.parentId] : undefined,
-          } as any;
+          };
           const id = await CategoryService.createCategory(payload);
           categoryIds[category.name] = id;
           log.info(`Created category: ${category.name} (${id})`);

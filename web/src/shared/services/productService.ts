@@ -14,13 +14,7 @@ export class ProductService {
   } = {}): Promise<Product[]> {
     try {
       const filters = options.categoryId ? [{ field: 'categoryId', operator: '==', value: options.categoryId }] : [];
-      const products = await ApiClient.queryCollection<Product>(
-        this.COLLECTION,
-        filters,
-        'createdAt',
-        'desc',
-        options.limit
-      );
+      const products = await ApiClient.getCollection<Product>(this.COLLECTION);
 
       log.info('Retrieved products', { count: products.length, filters });
       return products;

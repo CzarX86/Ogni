@@ -1,4 +1,5 @@
-import { AnalyticsService } from '@/shared/services/analytics';
+import { AnalyticsService } from 'shared/services/analytics';
+import { log } from 'shared/utils/logger';
 
 export interface ProfileViewEvent {
   userId: string;
@@ -67,7 +68,7 @@ export class ProfileAnalyticsService {
       // Also track as page view for GA4
       AnalyticsService.trackPageView(`/account/${event.page}`);
     } catch (error) {
-      console.error('Error tracking profile view:', error);
+      log.error('Error tracking profile view:', { error });
     }
   }
 
@@ -93,7 +94,7 @@ export class ProfileAnalyticsService {
         });
       }
     } catch (error) {
-      console.error('Error tracking profile update:', error);
+      log.error('Error tracking profile update:', { error });
     }
   }
 
@@ -118,7 +119,7 @@ export class ProfileAnalyticsService {
         });
       }
     } catch (error) {
-      console.error('Error tracking profile interaction:', error);
+      log.error('Error tracking profile interaction:', { error });
     }
   }
 
@@ -135,7 +136,7 @@ export class ProfileAnalyticsService {
         timestamp: event.timestamp.toISOString()
       });
     } catch (error) {
-      console.error('Error tracking profile engagement:', error);
+      log.error('Error tracking profile engagement:', { error });
     }
   }
 
@@ -259,7 +260,7 @@ export class ProfileAnalyticsService {
     if (!metadata) return 0;
 
     let completed = 0;
-    let total = 2; // phone and address
+    const total = 2; // phone and address
 
     if (metadata.hasPhone) completed++;
     if (metadata.hasAddress) completed++;
@@ -285,7 +286,7 @@ export class ProfileAnalyticsService {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error tracking profile engagement time:', error);
+      log.error('Error tracking profile engagement time:', { error });
     }
   }
 
@@ -309,7 +310,7 @@ export class ProfileAnalyticsService {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error tracking feature usage:', error);
+      log.error('Error tracking feature usage:', { error });
     }
   }
 }

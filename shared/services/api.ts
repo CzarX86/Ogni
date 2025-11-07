@@ -1,23 +1,21 @@
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
   startAfter,
   DocumentData,
-  QueryDocumentSnapshot
-} from 'firebase/firestore';
-import { db } from '../../web/src/services/firebase/config';
-import { ApiResponse, PaginatedResponse } from '../types';
-
-export class ApiClient {
+  QueryDocumentSnapshot,
+  db
+} from '../../web/src/services/firebase/config';
+import { ApiResponse, PaginatedResponse } from '../types';export class ApiClient {
   // Generic get document
   static async getDocument<T>(collectionName: string, id: string): Promise<T | null> {
     try {
@@ -39,7 +37,7 @@ export class ApiClient {
   static async getCollection<T>(collectionName: string): Promise<T[]> {
     try {
       const querySnapshot = await getDocs(collection(db, collectionName));
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+      return querySnapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as T));
     } catch (error) {
       console.error(`Error getting collection ${collectionName}:`, error);
       throw error;
@@ -49,13 +47,13 @@ export class ApiClient {
   // Generic query with filters
   static async queryCollection<T>(
     collectionName: string, 
-    filters: { field: string; operator: any; value: any }[] = [],
+    filters: { field: string; operator: '==' | '!=' | '<' | '<=' | '>' | '>=' | 'array-contains' | 'in' | 'array-contains-any' | 'not-in'; value: any }[] = [],
     orderByField?: string,
     orderDirection: 'asc' | 'desc' = 'desc',
     limitCount?: number
   ): Promise<T[]> {
     try {
-      let q = collection(db, collectionName);
+      let q: any = collection(db, collectionName);
 
       // Apply filters
       filters.forEach(filter => {
@@ -73,7 +71,7 @@ export class ApiClient {
       }
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+      return querySnapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as T));
     } catch (error) {
       console.error(`Error querying collection ${collectionName}:`, error);
       throw error;
@@ -133,7 +131,7 @@ export class ApiClient {
       }
 
       const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+      const data = querySnapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as T));
       
       return {
         data,

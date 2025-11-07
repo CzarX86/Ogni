@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Calendar, Clock, User, Search, Filter } from 'lucide-react';
 import { BlogService } from '@/shared/services/blogService';
 import { BlogPost, BlogCategory } from '@/shared/models/blog';
-import { SEO, generateBlogPostStructuredData, SEOUtils } from '@/components/shared/SEO';
+import { SEO, SEOUtils } from '@/components/shared/SEO';
 import { formatDate } from '@/shared/utils/format';
+import { log } from '@/shared/utils/logger';
 
 interface BlogListProps {
   category?: string;
@@ -26,26 +27,7 @@ export const BlogList: React.FC<BlogListProps> = ({ category, search }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const blogService = new BlogService();
-
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  useEffect(() => {
-    loadPosts();
-  }, [searchTerm, selectedCategory, sortBy, currentPage]);
-
-  const loadCategories = async () => {
-    try {
-      const cats = await BlogService.getCategories();
-      setCategories(cats);
-    } catch (error) {
-      console.error('Error loading categories:', error);
-    }
-  };
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
       const filters = {
@@ -60,9 +42,26 @@ export const BlogList: React.FC<BlogListProps> = ({ category, search }) => {
       setPosts(result.posts);
       setTotalPages(result.pagination.totalPages);
     } catch (error) {
-      console.error('Error loading posts:', error);
+      log.error('Error loading posts:', { error, selectedCategory, searchTerm, sortBy, currentPage });
     } finally {
       setLoading(false);
+    }
+  }, [selectedCategory, searchTerm, sortBy, currentPage]);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
+
+  const loadCategories = async () => {
+    try {
+      const cats = await BlogService.getCategories();
+      setCategories(cats);
+    } catch (error) {
+      log.error('Error loading categories:', { error });
     }
   };
 

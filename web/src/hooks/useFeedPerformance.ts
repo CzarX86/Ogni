@@ -108,7 +108,7 @@ export const useFeedPerformance = (options: UseFeedPerformanceOptions = {}) => {
   // Track memory usage (if available)
   const trackMemoryUsage = useCallback(() => {
     if (enabled && 'memory' in performance) {
-      const memory = (performance as any).memory;
+      const memory = (performance as { memory: { usedJSHeapSize: number; totalJSHeapSize: number } }).memory;
       const memoryUsage = memory.usedJSHeapSize / memory.totalJSHeapSize;
 
       setMetrics(prev => ({ ...prev, memoryUsage }));

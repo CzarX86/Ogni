@@ -1,5 +1,5 @@
-import { HttpApiClient } from '@/shared/services/api';
-import { FeedResponse, FeedItem, ApiResponse } from '@/shared/types';
+import { HttpApiClient } from 'shared/services/api';
+import { FeedResponse, FeedItem, ApiResponse } from 'shared/types';
 import { log } from '../utils/logger';
 
 export class FeedService {

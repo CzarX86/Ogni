@@ -1,7 +1,8 @@
-import { HttpApiClient } from '@/shared/services/api';
-import { AuthResult, LoginData } from '@/shared/types';
+import { HttpApiClient } from 'shared/services/api';
+import { AuthResult, LoginData } from 'shared/types';
 import { auth } from './firebase/config';
 import { signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, onAuthStateChanged, User } from 'firebase/auth';
+import { log } from '../utils/logger';
 
 export class AuthService {
   private static readonly BASE_URL = '/auth';
@@ -17,7 +18,7 @@ export class AuthService {
       }
       return response.data as AuthResult;
     } catch (error) {
-      console.error('Error logging in:', error);
+      log.error('Error logging in:', { error });
       throw error;
     }
   }
@@ -57,7 +58,7 @@ export class AuthService {
           emailVerified: firebaseUser.emailVerified
         });
       } catch (backendError) {
-        console.warn('Backend sync failed, but Google auth succeeded:', backendError);
+        log.warn('Backend sync failed, but Google auth succeeded:', { backendError });
       }
 
       return {
@@ -65,7 +66,7 @@ export class AuthService {
         token: await firebaseUser.getIdToken()
       };
     } catch (error) {
-      console.error('Error logging in with Google:', error);
+      log.error('Error logging in with Google:', { error });
       throw new Error('Google login failed');
     }
   }
@@ -79,7 +80,7 @@ export class AuthService {
       // Also call backend logout if needed
       await HttpApiClient.post(`${this.BASE_URL}/logout`, {});
     } catch (error) {
-      console.error('Error logging out:', error);
+      log.error('Error logging out:', { error });
       throw error;
     }
   }
@@ -92,7 +93,7 @@ export class AuthService {
       const response = await HttpApiClient.get(`${this.BASE_URL}/check`);
       return response.success;
     } catch (error) {
-      console.error('Error checking auth:', error);
+      log.error('Error checking auth:', { error });
       return false;
     }
   }

@@ -56,7 +56,7 @@ export class AuthService {
     // Create user document in Firestore
     const userDoc: UserProfile = {
       uid: user.uid,
-      email: user.email!,
+      email: user.email || '',
       displayName: user.displayName,
       role: 'customer',
       createdAt: new Date(),
@@ -169,7 +169,7 @@ export class AuthService {
     // Create admin user document in Firestore
     const userDoc: UserProfile = {
       uid: user.uid,
-      email: user.email!,
+      email: user.email || '',
       displayName: user.displayName,
       role: 'admin',
       createdAt: new Date(),
@@ -219,7 +219,6 @@ export class AuthService {
     await this.requireAdmin();
 
     // Note: In production, this should use pagination and proper security rules
-    const usersSnapshot = await getDoc(doc(db, 'users', 'all')); // This is a placeholder
     // Implementation would need proper Firestore query
     return [];
   }

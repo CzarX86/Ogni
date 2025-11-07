@@ -5,8 +5,8 @@ import { formatPrice } from '../../utils/format';
 interface CartProps {
   cart: CartType;
   products: { [productId: string]: { name: string; price: number; images: string[] } };
-  onUpdateQuantity?: (productId: string, quantity: number) => void;
-  onRemoveItem?: (productId: string) => void;
+  onUpdateQuantity?: (_productId: string, _quantity: number) => void;
+  onRemoveItem?: (_productId: string) => void;
   onCheckout?: () => void;
   onContinueShopping?: () => void;
   loading?: boolean;
@@ -145,8 +145,8 @@ export const Cart: React.FC<CartProps> = ({
 
 interface CartItemCardProps {
   item: CartItem & { product: { name: string; price: number; images: string[] } };
-  onUpdateQuantity?: (productId: string, quantity: number) => void;
-  onRemoveItem?: (productId: string) => void;
+  onUpdateQuantity?: (_productId: string, _quantity: number) => void;
+  onRemoveItem?: (_productId: string) => void;
   loading?: boolean;
 }
 

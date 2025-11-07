@@ -6,7 +6,7 @@ import { ProfileOverview } from './ProfileOverview';
 import { ProfileForm } from './ProfileForm';
 import { PasswordChange } from './PasswordChange';
 import { OrderHistoryList } from './OrderHistoryList';
-import { User as UserType, Order } from '@/shared/types';
+import { User as UserType, Order, UserProfile } from '@/shared/types';
 
 interface AccountSettingsProps {
   user: UserType;
@@ -27,6 +27,17 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({
   onProfileUpdate,
   onPasswordChanged,
 }) => {
+  const handleProfileFormUpdate = (updatedProfile: UserProfile) => {
+    // Only update phone since that's what the form currently supports
+    const updatedUser: UserType = {
+      ...user,
+      profile: {
+        ...user.profile,
+        phone: updatedProfile.phone,
+      },
+    };
+    onProfileUpdate(updatedUser);
+  };
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
@@ -63,7 +74,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({
               phone: user.profile?.phone || '',
               address: user.profile?.address || '',
             }}
-            onUpdate={onProfileUpdate}
+            onUpdate={handleProfileFormUpdate}
           />
         </TabsContent>
 

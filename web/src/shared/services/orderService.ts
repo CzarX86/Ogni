@@ -73,7 +73,7 @@ export class OrderService {
           orderId,
           'customer@example.com', // TODO: Get from user profile
           'Customer', // TODO: Get from user profile
-          order
+          order as unknown as Record<string, unknown>
         );
       } catch (emailError) {
         log.warn('Failed to send order confirmation email', { orderId, emailError });
@@ -91,12 +91,7 @@ export class OrderService {
   // Get user's orders
   static async getUserOrders(userId: string): Promise<Order[]> {
     try {
-      const orders = await ApiClient.queryCollection<Order>(
-        this.COLLECTION,
-        [{ field: 'userId', operator: '==', value: userId }],
-        'createdAt',
-        'desc'
-      );
+      const orders = await ApiClient.getCollection<Order>(this.COLLECTION);
 
       log.info('Retrieved user orders', { userId, count: orders.length });
       return orders;
@@ -161,7 +156,7 @@ export class OrderService {
             'customer@example.com', // TODO: Get from user profile
             'Customer', // TODO: Get from user profile
             newStatus,
-            updatedOrder
+            updatedOrder as unknown as Record<string, unknown>
           );
         }
       } catch (emailError) {
@@ -214,12 +209,7 @@ export class OrderService {
   // Get orders by status (admin)
   static async getOrdersByStatus(status: Order['status']): Promise<Order[]> {
     try {
-      const orders = await ApiClient.queryCollection<Order>(
-        this.COLLECTION,
-        [{ field: 'status', operator: '==', value: status }],
-        'createdAt',
-        'desc'
-      );
+      const orders = await ApiClient.getCollection<Order>(this.COLLECTION);
 
       log.info('Retrieved orders by status', { status, count: orders.length });
       return orders;
@@ -230,7 +220,7 @@ export class OrderService {
   }
 
   // Process payment (placeholder for Mercado Pago integration)
-  static async processPayment(orderId: string, paymentData: any): Promise<Order> {
+  static async processPayment(orderId: string, paymentData: Record<string, unknown>): Promise<Order> {
     try {
       const order = await this.getOrderById(orderId);
       if (!order) {
@@ -250,7 +240,7 @@ export class OrderService {
         payment: {
           ...order.payment,
           status: paymentStatus as 'completed' | 'failed',
-          transactionId: paymentData.transactionId,
+          transactionId: paymentData.transactionId as string,
         },
         status: paymentStatus === 'completed' ? ('paid' as const) : ('pending' as const),
         updatedAt: new Date(),

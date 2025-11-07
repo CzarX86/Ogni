@@ -12,7 +12,7 @@ import {
   ShoppingCart,
   Eye
 } from 'lucide-react';
-import { log } from '../../utils/logger';
+import { log } from 'shared/utils/logger';
 
 interface FeedItemProps {
   item: FeedItemType;
@@ -33,7 +33,6 @@ export const FeedItem: React.FC<FeedItemProps> = ({
 }) => {
   const [isLiking, setIsLiking] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   const { product, socialStats } = item;
 
@@ -139,7 +138,6 @@ export const FeedItem: React.FC<FeedItemProps> = ({
             socialStats.isSaved ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-gray-800'
           }`}
           onClick={handleSave}
-          disabled={isSaving}
         >
           <Bookmark className={`h-5 w-5 ${socialStats.isSaved ? 'fill-current' : ''}`} />
         </Button>

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import { Separator } from '../../components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
-import { Calendar, Clock, User, ArrowLeft, Share2, Heart, MessageCircle, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, Share2, Heart, MessageCircle, Eye } from 'lucide-react';
 import { BlogService } from '@/shared/services/blogService';
 import { BlogPost } from '@/shared/models/blog';
 import { MarkdownRenderer } from '@/components/shared/MarkdownRenderer';
-import { SEO, generateBlogPostStructuredData, SEOUtils } from '@/components/shared/SEO';
+import { SEO, generateBlogPostStructuredData } from '@/components/shared/SEO';
 import { formatDate } from '@/shared/utils/format';
+import { log } from '@/shared/utils/logger';
 
 interface BlogPostPageProps {}
 
@@ -22,13 +22,7 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = () => {
   const [error, setError] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
 
-  useEffect(() => {
-    if (slug) {
-      loadPost(slug);
-    }
-  }, [slug]);
-
-  const loadPost = async (postSlug: string) => {
+  const loadPost = useCallback(async (postSlug: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -45,12 +39,18 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = () => {
       const related = await BlogService.getRelatedPosts(postData.id, 3);
       setRelatedPosts(related);
     } catch (err) {
-      console.error('Error loading post:', err);
+      log.error('Error loading post:', { error: err, slug });
       setError('Erro ao carregar o post');
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    if (slug) {
+      loadPost(slug);
+    }
+  }, [slug, loadPost]);
 
   const handleLike = () => {
     if (!post) return;
@@ -71,7 +71,7 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = () => {
           url
         });
       } catch (err) {
-        console.error('Error sharing:', err);
+        log.error('Error sharing:', { error: err, title, url });
         fallbackShare(url, title);
       }
     } else {
@@ -79,7 +79,7 @@ export const BlogPostPage: React.FC<BlogPostPageProps> = () => {
     }
   };
 
-  const fallbackShare = (url: string, title: string) => {
+  const fallbackShare = (url: string, _title: string) => {
     navigator.clipboard.writeText(url).then(() => {
       alert('Link copiado para a área de transferência!');
     }).catch(() => {

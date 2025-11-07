@@ -1,7 +1,7 @@
 import { ApiClient } from './api';
 import { CartModel } from '../models/cart';
 import { ProductService } from './productService';
-import { Cart, CartItem, Product } from '../types';
+import { Cart, Product } from '../types';
 import { log } from '../utils/logger';
 
 export class CartService {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ReviewService } from '@/shared/services/reviewService';
 import { CreateReviewRequest } from '@/shared/models/review';
 import { Star, Send } from 'lucide-react';
+import { log } from 'shared/utils/logger';
 
 interface ReviewFormProps {
   productId: string;
@@ -41,7 +42,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmi
       onReviewSubmitted?.();
     } catch (err) {
       setError('Failed to submit review. Please try again.');
-      console.error('Error submitting review:', err);
+      log.error('Error submitting review:', { err });
     } finally {
       setSubmitting(false);
     }
@@ -57,6 +58,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmi
           key={i}
           type="button"
           className="focus:outline-none"
+          aria-label={`Rate ${starRating} star${starRating > 1 ? 's' : ''}`}
           onMouseEnter={() => setHoverRating(starRating)}
           onMouseLeave={() => setHoverRating(0)}
           onClick={() => setRating(starRating)}

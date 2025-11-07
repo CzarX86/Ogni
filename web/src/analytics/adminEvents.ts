@@ -1,5 +1,6 @@
 import { getAnalytics, logEvent, Analytics } from 'firebase/analytics';
 import { getApp } from 'firebase/app';
+import { log } from 'shared/utils/logger';
 
 // Initialize analytics
 let analytics: Analytics | null = null;
@@ -8,7 +9,7 @@ try {
   const app = getApp();
   analytics = getAnalytics(app);
 } catch (error) {
-  console.warn('Firebase Analytics not available:', error);
+  log.warn('Firebase Analytics not available:', { error });
 }
 
 export interface AdminEventData {
@@ -85,16 +86,16 @@ export interface AdminEventData {
 }
 
 export class AdminAnalytics {
-  private static logEvent(eventName: string, parameters: any): void {
+  private static logEvent(eventName: string, parameters: Record<string, unknown>): void {
     if (!analytics) {
-      console.log(`[AdminAnalytics] ${eventName}:`, parameters);
+      log.info(`[AdminAnalytics] ${eventName}:`, parameters);
       return;
     }
 
     try {
-      logEvent(analytics, eventName as any, parameters);
+      logEvent(analytics, eventName, parameters);
     } catch (error) {
-      console.error('Error logging admin analytics event:', error);
+      log.error('Error logging admin analytics event:', { error });
     }
   }
 
@@ -152,9 +153,9 @@ export class AdminAnalytics {
   }
 
   // Utility methods
-  static trackAdminAction(action: string, details: Record<string, any>): void {
+  static trackAdminAction(action: string, details: Record<string, unknown>): void {
     if (!analytics) {
-      console.log(`[AdminAnalytics] admin_action: ${action}`, details);
+      log.info(`[AdminAnalytics] admin_action: ${action}`, details);
       return;
     }
 
@@ -165,13 +166,13 @@ export class AdminAnalytics {
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Error logging admin action:', error);
+      log.error('Error logging admin action:', { error });
     }
   }
 
   static trackPerformanceMetric(metric: string, value: number, unit: string): void {
     if (!analytics) {
-      console.log(`[AdminAnalytics] performance_metric: ${metric} = ${value} ${unit}`);
+      log.info(`[AdminAnalytics] performance_metric: ${metric} = ${value} ${unit}`);
       return;
     }
 
@@ -183,13 +184,13 @@ export class AdminAnalytics {
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Error logging performance metric:', error);
+      log.error('Error logging performance metric:', { error });
     }
   }
 
-  static trackError(errorType: string, errorMessage: string, context?: Record<string, any>): void {
+  static trackError(errorType: string, errorMessage: string, context?: Record<string, unknown>): void {
     if (!analytics) {
-      console.log(`[AdminAnalytics] error: ${errorType} - ${errorMessage}`, context);
+      log.info(`[AdminAnalytics] error: ${errorType} - ${errorMessage}`, context);
       return;
     }
 
@@ -201,7 +202,7 @@ export class AdminAnalytics {
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Error logging admin error:', error);
+      log.error('Error logging admin error:', { error });
     }
   }
 }

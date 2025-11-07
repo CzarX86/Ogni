@@ -107,7 +107,7 @@ export interface UserInteraction {
   interactionType: 'click' | 'scroll' | 'form_submit' | 'search' | 'add_to_cart' | 'purchase';
   element: string;
   page: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: Date;
 }
 
@@ -118,7 +118,7 @@ export interface Session {
   endTime?: Date;
   duration?: number;
   pageViews: number;
-  deviceInfo: any;
+  deviceInfo: unknown;
   source?: string;
 }
 

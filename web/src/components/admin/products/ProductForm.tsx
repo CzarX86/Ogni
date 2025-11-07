@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Product } from '../../../types';
 
 interface ProductFormProps {
   product?: Product;
   categories: Array<{ id: string; name: string }>;
-  onSubmit: (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSubmit: (_productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -16,29 +16,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   onCancel,
   loading = false,
 }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: 0,
-    images: [] as string[],
-    stock: 0,
-    categoryId: '',
-  });
+  const [formData, setFormData] = useState(() => ({
+    name: product?.name || '',
+    description: product?.description || '',
+    price: product?.price || 0,
+    images: product?.images || [],
+    stock: product?.stock || 0,
+    categoryId: product?.categoryId || '',
+  }));
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (product) {
-      setFormData({
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        images: product.images,
-        stock: product.stock,
-        categoryId: product.categoryId,
-      });
-    }
-  }, [product]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

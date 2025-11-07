@@ -8,6 +8,7 @@ import { CategoryService } from '../../services/categoryService';
 import { SeedService } from '../../services/seedService';
 import { CartService } from '../../services/cartService';
 import { Button } from '../../components/ui/button';
+import { logger } from '../../shared/utils/logger';
 
 const Catalog: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -34,15 +35,14 @@ const Catalog: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Iniciando carregamento de dados...');
+        logger.info('Starting data loading...');
         
         const [productsData, categoriesData] = await Promise.all([
           ProductService.getAllProducts(),
           CategoryService.getAllCategories(),
         ]);
 
-        console.log('📦 Produtos carregados:', productsData.length);
-        console.log('📂 Categorias carregadas:', categoriesData.length);
+        logger.info('Data loaded', { productsCount: productsData.length, categoriesCount: categoriesData.length });
         
         setProducts(productsData);
         setCategories(categoriesData);
@@ -56,7 +56,7 @@ const Catalog: React.FC = () => {
           setSelectedPriceRange({ min: minPrice, max: maxPrice });
         }
       } catch (error) {
-        console.error('❌ Falha ao carregar dados:', error);
+        logger.error('Failed to load data', { error });
       } finally {
         setLoading(false);
       }
@@ -157,9 +157,9 @@ const Catalog: React.FC = () => {
   const handleSeedDatabase = async () => {
     try {
       setSeeding(true);
-      console.log('Starting database seeding...');
+      logger.info('Starting database seeding...');
       const result = await SeedService.seedDatabase();
-      console.log('Seeding result:', result);
+      logger.info('Seeding completed', { result });
       if (result.success) {
         alert('Banco de dados populado com sucesso! Recarregue a página para ver os produtos.');
         // Reload data
@@ -168,7 +168,7 @@ const Catalog: React.FC = () => {
         alert(`Erro ao popular banco: ${result.error}`);
       }
     } catch (error) {
-      console.error('Seeding error:', error);
+      logger.error('Seeding error', { error });
       alert('Erro ao popular banco de dados: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setSeeding(false);

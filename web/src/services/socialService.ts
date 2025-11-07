@@ -1,4 +1,4 @@
-import { HttpApiClient } from '@/shared/services/api';
+import { HttpApiClient } from 'shared/services/api';
 import {
   ProductLike,
   ProductComment,
@@ -6,9 +6,8 @@ import {
   SocialStats,
   LikeResponse,
   CommentResponse,
-  ShareResponse,
   ApiResponse
-} from '@/shared/types';
+} from 'shared/types';
 import { log } from '../utils/logger';
 
 export class SocialService {

@@ -5,6 +5,39 @@ import { getStorage } from 'firebase/storage';
 import { getMessaging } from 'firebase/messaging';
 import { getAnalytics } from 'firebase/analytics';
 
+// Re-export Firebase functions for shared services
+export {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter
+} from 'firebase/firestore';
+
+export type {
+  DocumentData,
+  QueryDocumentSnapshot
+} from 'firebase/firestore';
+
+export {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+  sendPasswordResetEmail
+} from 'firebase/auth';
+
+export type { User } from 'firebase/auth';
+
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,

@@ -1,5 +1,6 @@
-import { AnalyticsService } from '@/shared/services/analytics';
-import { FeedInteraction, ProductLike, ProductComment, ProductShare, FeedItem } from '@/shared/types';
+import { AnalyticsService } from 'shared/services/analytics';
+import { FeedItem } from 'shared/types';
+import { log } from 'shared/utils/logger';
 
 export interface FeedViewEvent {
   userId?: string;
@@ -84,7 +85,7 @@ export class FeedAnalyticsService {
       // Also track as page view for GA4
       AnalyticsService.trackPageView('/feed');
     } catch (error) {
-      console.error('Error tracking feed view:', error);
+      log.error('Error tracking feed view:', { error });
     }
   }
 
@@ -122,7 +123,7 @@ export class FeedAnalyticsService {
         });
       }
     } catch (error) {
-      console.error('Error tracking feed interaction:', error);
+      log.error('Error tracking feed interaction:', { error });
     }
   }
 
@@ -139,7 +140,7 @@ export class FeedAnalyticsService {
         timestamp: event.timestamp.toISOString()
       });
     } catch (error) {
-      console.error('Error tracking feed performance:', error);
+      log.error('Error tracking feed performance:', { error });
     }
   }
 
@@ -157,7 +158,7 @@ export class FeedAnalyticsService {
         timestamp: event.timestamp.toISOString()
       });
     } catch (error) {
-      console.error('Error tracking algorithm performance:', error);
+      log.error('Error tracking algorithm performance:', { error });
     }
   }
 
@@ -299,7 +300,7 @@ export class FeedAnalyticsService {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error tracking scroll depth:', error);
+      log.error('Error tracking scroll depth:', { error });
     }
   }
 
@@ -321,7 +322,7 @@ export class FeedAnalyticsService {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error tracking feed action:', error);
+      log.error('Error tracking feed action:', { error });
     }
   }
 }

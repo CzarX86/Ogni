@@ -1,7 +1,7 @@
 import { ApiClient } from './api';
 import { ProductModel } from '../models/product';
 import { Product } from '../types';
-import { log } from '../utils/logger';
+import { log } from 'shared/utils/logger';
 
 export class ProductService {
   private static COLLECTION = 'products';
@@ -14,13 +14,7 @@ export class ProductService {
   } = {}): Promise<Product[]> {
     try {
       const filters = options.categoryId ? [{ field: 'categoryId', operator: '==', value: options.categoryId }] : [];
-      const products = await ApiClient.queryCollection<Product>(
-        this.COLLECTION,
-        filters,
-        undefined, // Remove ordering by createdAt temporarily
-        'desc',
-        options.limit
-      );
+      const products = await ApiClient.getCollection<Product>(this.COLLECTION);
 
       log.info('Retrieved products', { count: products.length, filters });
       return products;

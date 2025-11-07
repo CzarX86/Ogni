@@ -85,16 +85,13 @@ export class CategoryService {
   // Get categories by parent (for subcategories)
   static async getCategoriesByParent(parentId?: string): Promise<Category[]> {
     try {
-      const filters = parentId !== undefined ? [{ field: 'parentId', operator: '==', value: parentId }] : [];
-      const categories = await ApiClient.queryCollection<Category>(
-        this.COLLECTION,
-        filters,
-        'name',
-        'asc'
-      );
+      const categories = await ApiClient.getCollection<Category>(this.COLLECTION);
+      const filteredCategories = parentId !== undefined
+        ? categories.filter(cat => cat.parentId === parentId)
+        : categories.filter(cat => !cat.parentId);
 
-      log.info('Retrieved categories by parent', { parentId, count: categories.length });
-      return categories;
+      log.info('Retrieved categories by parent', { parentId, count: filteredCategories.length });
+      return filteredCategories;
     } catch (error) {
       log.error('Failed to get categories by parent', { parentId, error });
       throw error;

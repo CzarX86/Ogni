@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
-import { MessageCircle, Send, Minimize2, Maximize2, X, Phone, MessageSquare } from 'lucide-react';
+import { MessageCircle, Send, Minimize2, Maximize2, X, MessageSquare } from 'lucide-react';
 
 import { ChatService, ChatMessage, QuickReply } from '@/shared/services/chatService';
 
@@ -49,11 +49,14 @@ export const Chatbot: React.FC<ChatbotProps> = ({
     }
   }, [isOpen]);
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return;
 
+    // Generate unique ID for the message
+    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
     const userMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: messageId,
       content: content.trim(),
       sender: 'user',
       timestamp: new Date()
@@ -63,13 +66,14 @@ export const Chatbot: React.FC<ChatbotProps> = ({
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate bot response
+    // Simulate bot response with random delay
+    const delay = 1000 + Math.floor(Math.random() * 2000);
     setTimeout(() => {
       const botResponse = ChatService.generateBotResponse(content, messages);
       setMessages(prev => [...prev, botResponse]);
       setIsTyping(false);
-    }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
-  };
+    }, delay);
+  }, [messages]);
 
     const quickReplies: QuickReply[] = [
     { id: '1', text: 'Ver produtos', action: 'products' },
@@ -197,7 +201,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                 {/* Quick replies */}
                 {messages[messages.length - 1]?.metadata?.quickReplies && (
                   <div className="flex flex-wrap gap-2 mt-4">
-                    {messages[messages.length - 1].metadata!.quickReplies!.map((reply) => (
+                    {(messages[messages.length - 1]?.metadata?.quickReplies || []).map((reply) => (
                       <Button
                         key={reply.id}
                         variant="outline"
@@ -232,8 +236,8 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                     <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
                       </div>
                     </div>
                   </div>

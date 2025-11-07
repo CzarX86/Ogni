@@ -1,9 +1,11 @@
+/* eslint-disable no-console */
+
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogEntry {
   level: LogLevel;
   message: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   timestamp: Date;
   userId?: string;
   sessionId?: string;
@@ -23,7 +25,7 @@ class Logger {
     return Logger.instance;
   }
 
-  private log(level: LogLevel, message: string, context?: Record<string, any>): void {
+  private log(level: LogLevel, message: string, context?: Record<string, unknown>): void {
     const entry: LogEntry = {
       level,
       message,
@@ -50,24 +52,24 @@ class Logger {
     }
   }
 
-  debug(message: string, context?: Record<string, any>): void {
+  debug(message: string, context?: Record<string, unknown>): void {
     this.log('debug', message, context);
   }
 
-  info(message: string, context?: Record<string, any>): void {
+  info(message: string, context?: Record<string, unknown>): void {
     this.log('info', message, context);
   }
 
-  warn(message: string, context?: Record<string, any>): void {
+  warn(message: string, context?: Record<string, unknown>): void {
     this.log('warn', message, context);
   }
 
-  error(message: string, context?: Record<string, any>): void {
+  error(message: string, context?: Record<string, unknown>): void {
     this.log('error', message, context);
   }
 
   // Analytics events
-  trackEvent(eventName: string, properties?: Record<string, any>): void {
+  trackEvent(eventName: string, properties?: Record<string, unknown>): void {
     this.info(`Event: ${eventName}`, properties);
     // Send to analytics service
   }
@@ -86,7 +88,7 @@ class Logger {
     return this.logs.slice(-count);
   }
 
-  private sendToLoggingService(entry: LogEntry): void {
+  private sendToLoggingService(_entry: LogEntry): void {
     // Implement sending to external logging service
     // e.g., LogRocket, Sentry, DataDog, etc.
     try {
@@ -105,11 +107,11 @@ export const logger = Logger.getInstance();
 
 // Convenience functions
 export const log = {
-  debug: (message: string, context?: Record<string, any>) => logger.debug(message, context),
-  info: (message: string, context?: Record<string, any>) => logger.info(message, context),
-  warn: (message: string, context?: Record<string, any>) => logger.warn(message, context),
-  error: (message: string, context?: Record<string, any>) => logger.error(message, context),
-  trackEvent: (eventName: string, properties?: Record<string, any>) => logger.trackEvent(eventName, properties),
+  debug: (message: string, context?: Record<string, unknown>) => logger.debug(message, context),
+  info: (message: string, context?: Record<string, unknown>) => logger.info(message, context),
+  warn: (message: string, context?: Record<string, unknown>) => logger.warn(message, context),
+  error: (message: string, context?: Record<string, unknown>) => logger.error(message, context),
+  trackEvent: (eventName: string, properties?: Record<string, unknown>) => logger.trackEvent(eventName, properties),
   time: (label: string) => logger.time(label),
   timeEnd: (label: string) => logger.timeEnd(label),
 };

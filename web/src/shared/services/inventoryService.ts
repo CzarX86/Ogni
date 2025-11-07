@@ -2,13 +2,17 @@ import {
   doc,
   getDoc,
   updateDoc,
+  setDoc,
   collection,
   query,
   where,
   getDocs,
-  DocumentData
+  DocumentData,
+  QueryDocumentSnapshot,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '../../services/firebase/config';
+import { log } from '../utils/logger';
 
 export interface InventoryItem {
   productId: string;
@@ -16,7 +20,7 @@ export interface InventoryItem {
   reserved: number; // Quantity reserved for pending orders
   available: number; // quantity - reserved
   lowStockThreshold: number;
-  lastUpdated: Date;
+  lastUpdated: Timestamp;
   location?: string; // Warehouse location
   sku: string;
 }
@@ -39,6 +43,7 @@ export interface InventoryAlert {
 
 export class InventoryService {
   private static readonly COLLECTION = 'inventory';
+  private static readonly LOG_COLLECTION = 'inventory_logs';
 
   // Get inventory for a specific product
   static async getInventory(productId: string): Promise<InventoryItem | null> {
@@ -52,7 +57,7 @@ export class InventoryService {
 
       return null;
     } catch (error) {
-      console.error('Error getting inventory:', error);
+      log.error('Error getting inventory:', { error });
       throw new Error('Failed to get inventory data');
     }
   }
@@ -82,7 +87,7 @@ export class InventoryService {
 
       return inventoryMap;
     } catch (error) {
-      console.error('Error getting inventory batch:', error);
+      log.error('Error getting inventory batch:', { error });
       throw new Error('Failed to get inventory batch data');
     }
   }
@@ -97,7 +102,7 @@ export class InventoryService {
 
       // Get current inventory
       const currentInventory = await this.getInventory(productId);
-      const now = new Date();
+      const now = Timestamp.fromDate(new Date());
 
       let newInventory: InventoryItem;
 
@@ -113,14 +118,12 @@ export class InventoryService {
           available: newAvailable,
           lastUpdated: now,
         };
-
         await updateDoc(inventoryRef, {
           quantity: newQuantity,
           available: newAvailable,
           lastUpdated: now,
         });
       } else {
-        // Create new inventory record
         const newQuantity = Math.max(0, update.quantityChange);
         newInventory = {
           productId,
@@ -132,7 +135,7 @@ export class InventoryService {
           sku: `SKU-${productId}`,
         };
 
-        await updateDoc(inventoryRef, newInventory as any);
+        await setDoc(inventoryRef, newInventory);
       }
 
       // Log the inventory change
@@ -140,7 +143,7 @@ export class InventoryService {
 
       return newInventory;
     } catch (error) {
-      console.error('Error updating inventory:', error);
+      log.error('Error updating inventory:', { error });
       throw new Error('Failed to update inventory');
     }
   }
@@ -148,22 +151,22 @@ export class InventoryService {
   // Reserve inventory for an order
   static async reserveInventory(productId: string, quantity: number): Promise<boolean> {
     try {
+      const inventoryRef = doc(db, this.COLLECTION, productId);
       const inventory = await this.getInventory(productId);
 
       if (!inventory || inventory.available < quantity) {
         return false; // Not enough available inventory
       }
 
-      const inventoryRef = doc(db, this.COLLECTION, productId);
       await updateDoc(inventoryRef, {
         reserved: inventory.reserved + quantity,
         available: inventory.available - quantity,
-        lastUpdated: new Date(),
+        lastUpdated: Timestamp.fromDate(new Date()),
       });
 
       return true;
     } catch (error) {
-      console.error('Error reserving inventory:', error);
+      log.error('Error reserving inventory:', { error });
       throw new Error('Failed to reserve inventory');
     }
   }
@@ -171,6 +174,7 @@ export class InventoryService {
   // Release reserved inventory (e.g., order cancelled)
   static async releaseInventory(productId: string, quantity: number): Promise<void> {
     try {
+      const inventoryRef = doc(db, this.COLLECTION, productId);
       const inventory = await this.getInventory(productId);
 
       if (!inventory) return;
@@ -178,14 +182,13 @@ export class InventoryService {
       const newReserved = Math.max(0, inventory.reserved - quantity);
       const newAvailable = inventory.quantity - newReserved;
 
-      const inventoryRef = doc(db, this.COLLECTION, productId);
       await updateDoc(inventoryRef, {
         reserved: newReserved,
         available: newAvailable,
-        lastUpdated: new Date(),
+        lastUpdated: Timestamp.fromDate(new Date()),
       });
     } catch (error) {
-      console.error('Error releasing inventory:', error);
+      log.error('Error releasing inventory:', { error });
       throw new Error('Failed to release inventory');
     }
   }
@@ -197,7 +200,7 @@ export class InventoryService {
       const q = query(collection(db, this.COLLECTION));
       const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((doc: any) => {
+      querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
         const inventory = doc.data() as InventoryItem;
 
         if (inventory.quantity <= inventory.lowStockThreshold && inventory.quantity > 0) {
@@ -220,7 +223,7 @@ export class InventoryService {
 
       return alerts;
     } catch (error) {
-      console.error('Error getting low stock alerts:', error);
+      log.error('Error getting low stock alerts:', { error });
       throw new Error('Failed to get low stock alerts');
     }
   }
@@ -234,7 +237,7 @@ export class InventoryService {
 
       await Promise.all(promises);
     } catch (error) {
-      console.error('Error bulk updating inventory:', error);
+      log.error('Error bulk updating inventory:', { error });
       throw new Error('Failed to bulk update inventory');
     }
   }
@@ -243,12 +246,13 @@ export class InventoryService {
   static async setLowStockThreshold(productId: string, threshold: number): Promise<void> {
     try {
       const inventoryRef = doc(db, this.COLLECTION, productId);
+
       await updateDoc(inventoryRef, {
         lowStockThreshold: Math.max(0, threshold),
-        lastUpdated: new Date(),
+        lastUpdated: Timestamp.fromDate(new Date()),
       });
     } catch (error) {
-      console.error('Error setting low stock threshold:', error);
+      log.error('Error setting low stock threshold:', { error });
       throw new Error('Failed to set low stock threshold');
     }
   }
@@ -269,7 +273,7 @@ export class InventoryService {
       let lowStockCount = 0;
       let outOfStockCount = 0;
 
-      querySnapshot.forEach((doc: any) => {
+      querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
         const inventory = doc.data() as InventoryItem;
         totalProducts++;
         totalQuantity += inventory.quantity;
@@ -288,7 +292,7 @@ export class InventoryService {
         outOfStockCount,
       };
     } catch (error) {
-      console.error('Error getting inventory summary:', error);
+      log.error('Error getting inventory summary:', { error });
       throw new Error('Failed to get inventory summary');
     }
   }
@@ -296,14 +300,15 @@ export class InventoryService {
   // Private method to log inventory changes
   private static async logInventoryChange(update: InventoryUpdate): Promise<void> {
     try {
-      const logRef = doc(collection(db, 'inventory_logs'));
-      await updateDoc(logRef, {
+      const logRef = doc(collection(db, this.LOG_COLLECTION), `${update.productId}_${Date.now()}`);
+
+      await setDoc(logRef, {
         ...update,
-        timestamp: new Date(),
+        timestamp: Timestamp.fromDate(new Date()),
       });
     } catch (error) {
       // Log the error but don't fail the main operation
-      console.error('Error logging inventory change:', error);
+      log.error('Error logging inventory change:', { error });
     }
   }
 }

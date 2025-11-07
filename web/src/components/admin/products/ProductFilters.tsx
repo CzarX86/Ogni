@@ -69,7 +69,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           <select
             id="sortBy"
             value={sortBy}
-            onChange={(e) => onSortChange(e.target.value as any)}
+            onChange={(e) => onSortChange(e.target.value as 'name' | 'price' | 'stock' | 'createdAt')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="name">Nome</option>
@@ -87,7 +87,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           <select
             id="sortOrder"
             value={sortOrder}
-            onChange={(e) => onSortOrderChange(e.target.value as any)}
+            onChange={(e) => onSortOrderChange(e.target.value as 'asc' | 'desc')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="asc">Crescente</option>

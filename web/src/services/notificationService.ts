@@ -1,4 +1,4 @@
-import { log } from '@/shared/utils/logger';
+import { log } from 'shared/utils/logger';
 
 export interface NotificationAction {
   action: string;
@@ -11,7 +11,7 @@ export interface NotificationPayload {
   body: string;
   icon?: string;
   badge?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   actions?: NotificationAction[];
   tag?: string;
   requireInteraction?: boolean;
@@ -137,7 +137,8 @@ export class NotificationService {
 
       this.pushSubscription = await this.serviceWorkerRegistration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(this.VAPID_PUBLIC_KEY)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        applicationServerKey: this.urlBase64ToUint8Array(this.VAPID_PUBLIC_KEY) as any
       });
 
       log.info('Subscribed to push notifications', {
@@ -173,11 +174,18 @@ export class NotificationService {
    */
   private static async sendSubscriptionToServer(subscription: PushSubscription): Promise<void> {
     try {
+      const p256dhKey = subscription.getKey('p256dh');
+      const authKey = subscription.getKey('auth');
+
+      if (!p256dhKey || !authKey) {
+        throw new Error('Failed to get subscription keys');
+      }
+
       const subscriptionData: PushSubscriptionData = {
         endpoint: subscription.endpoint,
         keys: {
-          p256dh: btoa(String.fromCharCode(...Array.from(new Uint8Array(subscription.getKey('p256dh')!)))),
-          auth: btoa(String.fromCharCode(...Array.from(new Uint8Array(subscription.getKey('auth')!))))
+          p256dh: btoa(String.fromCharCode(...Array.from(new Uint8Array(p256dhKey)))),
+          auth: btoa(String.fromCharCode(...Array.from(new Uint8Array(authKey))))
         }
       };
 
@@ -230,7 +238,7 @@ export class NotificationService {
 
       // Handle notification click
       notification.onclick = () => {
-        if (payload.data?.url) {
+        if (payload.data?.url && typeof payload.data.url === 'string') {
           window.focus();
           window.location.href = payload.data.url;
         }

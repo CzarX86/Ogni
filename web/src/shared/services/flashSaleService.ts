@@ -71,8 +71,8 @@ export class FlashSaleService {
 
       if (filters.dateRange) {
         filteredSales = filteredSales.filter(sale =>
-          sale.startTime >= filters.dateRange!.start &&
-          sale.endTime <= filters.dateRange!.end
+          filters.dateRange && sale.startTime >= filters.dateRange.start &&
+          sale.endTime <= filters.dateRange.end
         );
       }
 

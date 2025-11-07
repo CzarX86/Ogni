@@ -4,6 +4,7 @@ import { Product } from '../../types';
 import { ProductDetail as ProductDetailComponent } from '../../components/product/ProductDetail';
 import { ProductService } from '../../services/productService';
 import { CartService } from '../../services/cartService';
+import { logger } from '../../shared/utils/logger';
 
 interface ProductDetailPageProps {
   productId?: string;
@@ -40,7 +41,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId }) => {
           setProduct(productData);
         }
       } catch (err) {
-        console.error('Failed to load product:', err);
+        logger.error('Failed to load product', { error: err, productId: resolvedProductId });
         setError('Erro ao carregar produto');
       } finally {
         setLoading(false);
@@ -59,7 +60,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId }) => {
         message: 'Produto adicionado ao carrinho com sucesso.',
       });
     } catch (err) {
-      console.error('Failed to add product to cart:', err);
+      logger.error('Failed to add product to cart', { error: err, productId: productIdToAdd, quantity });
       const errorMessage = err instanceof Error ? err.message : 'Não foi possível adicionar o produto ao carrinho.';
       setFeedback({ type: 'error', message: errorMessage });
     } finally {

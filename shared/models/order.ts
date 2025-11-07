@@ -1,7 +1,7 @@
 import { Order, OrderItem } from '../types';
 
 // Order and OrderItem models with validation
-export { Order, OrderItem };
+export type { Order, OrderItem };
 
 export class OrderItemModel {
   static validate(item: Partial<OrderItem>): { isValid: boolean; errors: string[] } {

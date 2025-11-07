@@ -2,13 +2,14 @@ import {
   doc,
   getDoc,
   updateDoc,
+  setDoc,
   collection,
   query,
   where,
   getDocs,
-  DocumentData
-} from 'firebase/firestore';
-import { db } from '../../web/src/services/firebase/config';
+  DocumentData,
+  db
+} from '../../web/src/services/firebase/config';
 
 export interface InventoryItem {
   productId: string;
@@ -132,7 +133,7 @@ export class InventoryService {
           sku: `SKU-${productId}`,
         };
 
-        await updateDoc(inventoryRef, newInventory);
+        await setDoc(inventoryRef, newInventory);
       }
 
       // Log the inventory change

@@ -1,4 +1,5 @@
 import { AnalyticsService } from '../services/analytics';
+import { log } from 'shared/utils/logger';
 
 export interface PurchaseEventData {
   orderId: string;
@@ -90,9 +91,9 @@ export class PurchaseAnalytics {
         });
       }
 
-      console.log('Purchase tracked:', data);
+      log.info('Purchase tracked:', { data });
     } catch (error) {
-      console.error('Error tracking purchase:', error);
+      log.error('Error tracking purchase:', { error });
     }
   }
 
@@ -125,9 +126,9 @@ export class PurchaseAnalytics {
         });
       }
 
-      console.log('Cart event tracked:', data);
+      log.info('Cart event tracked:', { data });
     } catch (error) {
-      console.error('Error tracking cart event:', error);
+      log.error('Error tracking cart event:', { error });
     }
   }
 
@@ -152,9 +153,9 @@ export class PurchaseAnalytics {
         });
       }
 
-      console.log('Checkout event tracked:', data);
+      log.info('Checkout event tracked:', { data });
     } catch (error) {
-      console.error('Error tracking checkout event:', error);
+      log.error('Error tracking checkout event:', { error });
     }
   }
 
@@ -169,9 +170,9 @@ export class PurchaseAnalytics {
         timestamp: new Date().toISOString(),
       });
 
-      console.log('Purchase funnel tracked for session:', sessionId);
+      log.info('Purchase funnel tracked for session:', { sessionId });
     } catch (error) {
-      console.error('Error tracking purchase funnel:', error);
+      log.error('Error tracking purchase funnel:', { error });
     }
   }
 
@@ -198,9 +199,9 @@ export class PurchaseAnalytics {
         timestamp: new Date().toISOString(),
       });
 
-      console.log('Abandoned cart tracked:', cartData);
+      log.info('Abandoned cart tracked:', { cartData });
     } catch (error) {
-      console.error('Error tracking abandoned cart:', error);
+      log.error('Error tracking abandoned cart:', { error });
     }
   }
 }
@@ -208,7 +209,7 @@ export class PurchaseAnalytics {
 // Extend Window interface for analytics libraries
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
-    fbq?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
+    fbq?: (...args: unknown[]) => void;
   }
 }

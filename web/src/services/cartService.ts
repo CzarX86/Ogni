@@ -2,7 +2,7 @@ import { ApiClient } from './api';
 import { CartModel } from '../models/cart';
 import { ProductService } from './productService';
 import { Cart, Product } from '../types';
-import { log } from '../utils/logger';
+import { log } from 'shared/utils/logger';
 
 export class CartService {
   private static COLLECTION = 'carts';

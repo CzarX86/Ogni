@@ -4,7 +4,7 @@ export interface AnalyticsEvent {
   eventType: string;
   page?: string;
   element?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   sessionId?: string;
   userId?: string;
   timestamp?: Date;
@@ -131,7 +131,7 @@ export class AnalyticsService {
   }
 
   // Track custom events
-  static trackCustomEvent(eventType: string, metadata?: Record<string, any>): void {
+  static trackCustomEvent(eventType: string, metadata?: Record<string, unknown>): void {
     const event: AnalyticsEvent = {
       eventType,
       metadata,
@@ -145,7 +145,7 @@ export class AnalyticsService {
 
   // Send event to multiple analytics providers
   private static sendEvent(event: AnalyticsEvent): void {
-    log.trackEvent(event.eventType, event);
+    log.trackEvent(event.eventType, event as unknown as Record<string, unknown>);
 
     // Google Analytics 4
     this.sendToGA4(event);
@@ -158,8 +158,9 @@ export class AnalyticsService {
   }
 
   private static sendToGA4(event: AnalyticsEvent): void {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', event.eventType, {
+    const windowWithGtag = window as { gtag?: (...args: unknown[]) => void };
+    if (typeof window !== 'undefined' && windowWithGtag.gtag) {
+      windowWithGtag.gtag('event', event.eventType, {
         custom_parameters: event.metadata,
         page_location: event.page,
         session_id: event.sessionId,
@@ -169,11 +170,12 @@ export class AnalyticsService {
   }
 
   private static sendToMetaPixel(event: AnalyticsEvent): void {
-    if (typeof window !== 'undefined' && (window as any).fbq) {
+    const windowWithFbq = window as { fbq?: (...args: unknown[]) => void };
+    if (typeof window !== 'undefined' && windowWithFbq.fbq) {
       // Map events to Meta Pixel standard events
       const pixelEvent = this.mapToPixelEvent(event);
       if (pixelEvent) {
-        (window as any).fbq('track', pixelEvent.name, pixelEvent.params);
+        windowWithFbq.fbq('track', pixelEvent.name, pixelEvent.params);
       }
     }
   }
@@ -188,14 +190,14 @@ export class AnalyticsService {
         },
         body: JSON.stringify(event),
       }).catch(error => {
-        console.warn('Failed to send analytics event:', error);
+        log.warn('Failed to send analytics event:', { error });
       });
     } catch (error) {
-      console.warn('Analytics send failed:', error);
+      log.warn('Analytics send failed:', { error });
     }
   }
 
-  private static mapToPixelEvent(event: AnalyticsEvent): { name: string; params?: any } | null {
+  private static mapToPixelEvent(event: AnalyticsEvent): { name: string; params?: Record<string, unknown> } | null {
     switch (event.eventType) {
       case 'product_view':
         return {

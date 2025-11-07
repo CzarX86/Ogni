@@ -1,4 +1,4 @@
-import { FeedAlgorithm, Product, FeedItem, ProductLike, UserInteraction } from '@/shared/types';
+import { FeedAlgorithm, Product, FeedItem, UserInteraction } from 'shared/types';
 import { log } from '../utils/logger';
 
 export class FeedPersonalizationAlgorithm {
@@ -126,7 +126,7 @@ export class FeedPersonalizationAlgorithm {
     if (userData.viewedProducts?.includes(product.id)) score += 0.3;
 
     // Check for similar products in same category
-    const likedInCategory = userData.likedProducts?.filter(id =>
+    const likedInCategory = userData.likedProducts?.filter(_id =>
       // This would need actual product data to check categories
       // For now, just return a base score
       true
@@ -187,8 +187,8 @@ export class FeedPersonalizationAlgorithm {
    * Calculate collaborative filtering score
    */
   private static calculateCollaborativeScore(
-    product: Product,
-    userData: { interactions?: UserInteraction[] }
+    _product: Product,
+    _userData: { interactions?: UserInteraction[] }
   ): number {
     // This would implement collaborative filtering:
     // - Find users similar to current user

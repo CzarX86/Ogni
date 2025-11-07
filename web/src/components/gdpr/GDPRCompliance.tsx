@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SecurityService } from '@/shared/utils/security';
+import { log } from '@/shared/utils/logger';
 
 interface GDPRConsentProps {
   onConsentGiven: (consents: GDPRConsents) => void;
@@ -15,7 +16,7 @@ export interface GDPRConsents {
 
 export const GDPRConsentBanner: React.FC<GDPRConsentProps> = ({
   onConsentGiven,
-  onConsentWithdrawn
+  onConsentWithdrawn: _onConsentWithdrawn
 }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [consents, setConsents] = useState<GDPRConsents>({
@@ -202,9 +203,9 @@ export const DataRightsPanel: React.FC<DataRightsPanelProps> = ({ userId }) => {
       const data = await securityService.exportUserData(userId);
 
       // In a real implementation, this would trigger a download
-      console.log('User data export:', data);
+      log.info('User data export:', { data, userId });
       setMessage('Solicitação de exportação de dados enviada. Você receberá um email em breve.');
-    } catch (error) {
+    } catch {
       setMessage('Erro ao solicitar exportação de dados. Tente novamente.');
     } finally {
       setLoading(false);
@@ -221,7 +222,7 @@ export const DataRightsPanel: React.FC<DataRightsPanelProps> = ({ userId }) => {
       const securityService = SecurityService.getInstance();
       await securityService.deleteUserData(userId);
       setMessage('Solicitação de exclusão de dados enviada. Seus dados serão removidos em até 30 dias.');
-    } catch (error) {
+    } catch {
       setMessage('Erro ao solicitar exclusão de dados. Tente novamente.');
     } finally {
       setLoading(false);

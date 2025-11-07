@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ReviewService } from '@/shared/services/reviewService';
 import { Review, ReviewStats } from '@/shared/models/review';
 import { Star, User, Calendar } from 'lucide-react';
+import { log } from '@/shared/utils/logger';
 
 interface ReviewListProps {
   productId: string;
@@ -13,11 +14,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadReviews();
-  }, [productId]);
-
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       setLoading(true);
       const [reviewsData, statsData] = await Promise.all([
@@ -28,11 +25,15 @@ export const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
       setStats(statsData);
     } catch (err) {
       setError('Failed to load reviews');
-      console.error('Error loading reviews:', err);
+      log.error('Error loading reviews:', { error: err, productId });
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId]);
+
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (

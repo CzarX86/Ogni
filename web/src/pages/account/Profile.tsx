@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { UserService } from '../../services/userService';
-import { User } from '@/shared/types';
+import { User, UserProfile } from '@/shared/types';
 import { MainLayout } from '@/components/shared/MainLayout';
 import { ProfileOverview } from '../../components/account/ProfileOverview';
 import { ProfileForm } from '../../components/account/ProfileForm';
 import { ProfileAnalyticsService } from '../../analytics/profileEvents';
+import { log } from '@/shared/utils/logger';
 
 export const Profile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadUserProfile();
@@ -32,14 +32,24 @@ export const Profile: React.FC = () => {
       const userData = await UserService.getUserProfile();
       setUser(userData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load profile');
+      log.error('Failed to load user profile', { error: err });
+      // Error is logged but not displayed to user
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleProfileUpdate = (updatedUser: User) => {
-    setUser(updatedUser);
+  const handleProfileFormUpdate = (updatedProfile: UserProfile) => {
+    // For now, just update the phone field since that's what the form currently supports
+    if (user) {
+      setUser({
+        ...user,
+        profile: {
+          ...user.profile,
+          phone: updatedProfile.phone,
+        },
+      });
+    }
   };
 
   if (isLoading) {
@@ -95,7 +105,7 @@ export const Profile: React.FC = () => {
                 phone: user.profile?.phone || '',
                 address: user.profile?.address || '',
               }}
-              onUpdate={handleProfileUpdate}
+              onUpdate={handleProfileFormUpdate}
             />
           </div>
         </div>

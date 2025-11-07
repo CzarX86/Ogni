@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { UserService } from '../../services/userService';
@@ -15,18 +15,7 @@ export const OrderHistory: React.FC = () => {
   const [offset, setOffset] = useState(0);
   const limit = 10;
 
-  useEffect(() => {
-    loadOrders();
-
-    // Track order history page view
-    ProfileAnalyticsService.trackProfilePageView(
-      'user_' + Date.now(), // In a real app, get from context
-      'session_' + Date.now(), // In a real app, get from context
-      'order_history'
-    );
-  }, []);
-
-  const loadOrders = async (loadMore = false) => {
+  const loadOrders = useCallback(async (loadMore = false) => {
     try {
       setIsLoading(true);
       const currentOffset = loadMore ? offset : 0;
@@ -55,7 +44,18 @@ export const OrderHistory: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [offset, limit]);
+
+  useEffect(() => {
+    loadOrders();
+
+    // Track order history page view
+    ProfileAnalyticsService.trackProfilePageView(
+      'user_' + Date.now(), // In a real app, get from context
+      'session_' + Date.now(), // In a real app, get from context
+      'order_history'
+    );
+  }, [loadOrders]);
 
   const loadMoreOrders = () => {
     loadOrders(true);

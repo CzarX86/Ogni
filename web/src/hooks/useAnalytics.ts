@@ -93,7 +93,7 @@ export const useAnalytics = () => {
     }
   }, [analyticsManager]);
 
-  const trackCustomEvent = useCallback((eventName: string, parameters?: Record<string, any>) => {
+  const trackCustomEvent = useCallback((eventName: string, parameters?: Record<string, unknown>) => {
     if (analyticsManager.isReady()) {
       analyticsManager.trackCustomEvent(eventName, parameters);
     }

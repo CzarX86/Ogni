@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
+import { log } from 'shared/utils/logger';
 
 interface OgniFormInputs {
   email: string;
@@ -13,7 +14,7 @@ const OgniForm: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<OgniFormInputs>();
 
   const onSubmit = (data: OgniFormInputs) => {
-    console.log('Form submitted:', data);
+    log.info('Form submitted:', { data });
     // Aqui você adicionaria a lógica de autenticação
   };
 

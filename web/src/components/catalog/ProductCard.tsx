@@ -6,8 +6,8 @@ import { Badge } from '../ui/badge';
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (productId: string) => void;
-  onViewDetails?: (productId: string) => void;
+  onAddToCart?: (_productId: string) => void;
+  onViewDetails?: (_productId: string) => void;
   isProcessing?: boolean;
 }
 
@@ -95,14 +95,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </p>
         </div>
 
-        {product.rating && (
+        {product.rating && product.rating > 0 && (
           <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-secondary/70">
             <div className="flex items-center gap-1 text-primary">
               {[...Array(5)].map((_, i) => (
                 <svg
                   key={i}
                   className={`h-3 w-3 ${
-                    i < Math.floor(product.rating!)
+                    i < Math.floor(product.rating || 0)
                       ? 'text-primary'
                       : 'text-muted-foreground/40'
                   }`}

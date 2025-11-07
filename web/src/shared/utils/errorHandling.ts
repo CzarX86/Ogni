@@ -1,15 +1,25 @@
-export class AppError extends Error {
+import { logger } from './logger';
+
+export class AppError {
+  public readonly name: string = 'AppError';
+  public readonly message: string;
   public readonly code: string;
   public readonly statusCode: number;
   public readonly isOperational: boolean;
+  public readonly stack?: string;
 
   constructor(message: string, code: string = 'INTERNAL_ERROR', statusCode: number = 500, isOperational: boolean = true) {
-    super(message);
+    this.message = message;
     this.code = code;
     this.statusCode = statusCode;
     this.isOperational = isOperational;
 
-    Error.captureStackTrace(this, this.constructor);
+    // Capture stack trace
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    } else {
+      this.stack = (new Error()).stack;
+    }
   }
 }
 
@@ -79,29 +89,41 @@ export function handleError(error: unknown): AppError {
   return new AppError('An unknown error occurred');
 }
 
-export function logError(error: AppError, context?: Record<string, any>): void {
+export function logError(error: AppError, context?: Record<string, unknown>): void {
   const logData = {
     message: error.message,
     code: error.code,
     statusCode: error.statusCode,
     stack: error.stack,
     context,
-    timestamp: new Date().toISOString(),
   };
 
   if (error.isOperational) {
-    console.warn('Operational Error:', logData);
+    logger.warn('Operational Error:', logData);
   } else {
-    console.error('Programming Error:', logData);
-  }
-
-  // In production, send to error tracking service
-  if (process.env.NODE_ENV === 'production') {
-    // sendToErrorTracking(logData);
+    logger.error('Programming Error:', logData);
   }
 }
 
-export function withErrorHandling<T extends any[], R>(
+export function withErrorHandling<T extends unknown[], R>(
+  fn: (...args: T) => R,
+  errorHandler?: (error: Error) => void
+): (...args: T) => R | undefined {
+  return (...args: T): R | undefined => {
+    try {
+      return fn(...args);
+    } catch (error) {
+      const appError = handleError(error);
+      logError(appError, { args });
+      if (errorHandler) {
+        errorHandler(appError);
+      }
+      return undefined;
+    }
+  };
+}
+
+export function withAsyncErrorHandling<T extends unknown[], R>(
   fn: (...args: T) => Promise<R>
 ): (...args: T) => Promise<R> {
   return async (...args: T): Promise<R> => {

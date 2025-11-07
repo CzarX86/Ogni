@@ -258,7 +258,6 @@ export class AIService {
     }
 
     // Engagement analysis
-    const hasQuestions = description.includes('?');
     const hasBenefits = /\b(benefits?|advantages?|features?)\b/i.test(description);
     const hasCallToAction = /\b(buy|purchase|order|get|shop)\b/i.test(description);
 
@@ -330,7 +329,6 @@ export class AIService {
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
 
     const tone = request.tone || 'professional';
-    const language = request.language || 'pt-BR';
 
     // Generate mock description based on product details
     let description = '';

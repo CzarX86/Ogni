@@ -1,8 +1,8 @@
-import { log } from '@/shared/utils/logger';
+import { log } from 'shared/utils/logger';
 
 export interface MetaPixelEvent {
   eventName: string;
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
   eventId?: string;
 }
 
@@ -257,7 +257,7 @@ export class MetaPixelService {
   /**
    * Track custom conversion event
    */
-  trackConversion(conversionType: string, parameters?: Record<string, any>): void {
+  trackConversion(conversionType: string, parameters?: Record<string, unknown>): void {
     this.trackEvent({
       eventName: 'CustomConversion',
       parameters: {
@@ -404,7 +404,7 @@ export class MetaPixelService {
 // Extend window interface for fbq
 declare global {
   interface Window {
-    fbq?: (...args: any[]) => void;
-    _fbq?: any[];
+    fbq?: (...args: unknown[]) => void;
+    _fbq?: unknown[];
   }
 }

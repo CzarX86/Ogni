@@ -1,8 +1,8 @@
-import { log } from '@/shared/utils/logger';
+import { log } from 'shared/utils/logger';
 
 export interface GA4Event {
   name: string;
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
 }
 
 export interface GA4Config {
@@ -129,7 +129,7 @@ export class GoogleAnalyticsService {
   /**
    * Track e-commerce events
    */
-  trackEcommerceEvent(eventType: string, parameters: Record<string, any>): void {
+  trackEcommerceEvent(eventType: string, parameters: Record<string, unknown>): void {
     this.trackEvent({
       name: eventType,
       parameters: {
@@ -295,14 +295,14 @@ export class GoogleAnalyticsService {
   /**
    * Set user properties
    */
-  setUserProperties(properties: Record<string, any>): void {
-    if (!this.isInitialized || !window.gtag) {
+  setUserProperties(properties: Record<string, unknown>): void {
+    if (!this.isInitialized || !window.gtag || !this.config) {
       log.warn('Google Analytics not initialized, skipping user properties', { properties });
       return;
     }
 
     try {
-      window.gtag('config', this.config!.measurementId, {
+      window.gtag('config', this.config.measurementId, {
         custom_map: properties
       });
       log.debug('GA4 user properties set', { properties });
@@ -315,13 +315,13 @@ export class GoogleAnalyticsService {
    * Set user ID
    */
   setUserId(userId: string): void {
-    if (!this.isInitialized || !window.gtag) {
+    if (!this.isInitialized || !window.gtag || !this.config) {
       log.warn('Google Analytics not initialized, skipping user ID', { userId });
       return;
     }
 
     try {
-      window.gtag('config', this.config!.measurementId, {
+      window.gtag('config', this.config.measurementId, {
         user_id: userId
       });
       log.debug('GA4 user ID set', { userId });
@@ -348,7 +348,7 @@ export class GoogleAnalyticsService {
 // Extend window interface for gtag
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
-    dataLayer: any[];
+    gtag?: (...args: unknown[]) => void;
+    dataLayer: unknown[];
   }
 }

@@ -3,11 +3,11 @@ import { Product } from '../../../types';
 
 interface BulkOperationsProps {
   selectedProducts: Product[];
-  onBulkDelete: (productIds: string[]) => void;
-  onBulkUpdateCategory: (productIds: string[], categoryId: string) => void;
-  onBulkUpdatePrice: (productIds: string[], priceAdjustment: number, adjustmentType: 'fixed' | 'percentage') => void;
-  onBulkActivate: (productIds: string[]) => void;
-  onBulkDeactivate: (productIds: string[]) => void;
+  onBulkDelete: (_productIds: string[]) => void;
+  onBulkUpdateCategory: (_productIds: string[], _categoryId: string) => void;
+  onBulkUpdatePrice: (_productIds: string[], _priceAdjustment: number, _adjustmentType: 'fixed' | 'percentage') => void;
+  onBulkActivate: (_productIds: string[]) => void;
+  onBulkDeactivate: (_productIds: string[]) => void;
   categories: Array<{ id: string; name: string }>;
 }
 

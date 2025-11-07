@@ -1,5 +1,6 @@
-import { HttpApiClient } from '@/shared/services/api';
-import { User, UserProfile, Order, AuthResult, RegisterData, LoginData } from '@/shared/types';
+import { HttpApiClient } from 'shared/services/api';
+import { User, UserProfile, Order, AuthResult, RegisterData, LoginData } from 'shared/types';
+import { log } from '../utils/logger';
 
 export class UserService {
   private static readonly BASE_URL = '/users';
@@ -8,7 +9,7 @@ export class UserService {
   /**
    * Get user profile information
    */
-  static async getUserProfile(userId?: string): Promise<User> {
+  static async getUserProfile(): Promise<User> {
     try {
       const response = await HttpApiClient.get(`${this.BASE_URL}/profile`);
       if (!response.success) {
@@ -16,7 +17,7 @@ export class UserService {
       }
       return response.data as User;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      log.error('Error fetching user profile:', { error });
       throw error;
     }
   }
@@ -32,7 +33,7 @@ export class UserService {
       }
       return response.data as User;
     } catch (error) {
-      console.error('Error updating user profile:', error);
+      log.error('Error updating user profile:', { error });
       throw error;
     }
   }
@@ -52,7 +53,7 @@ export class UserService {
       }
       return response.data as Order[];
     } catch (error) {
-      console.error('Error fetching user orders:', error);
+      log.error('Error fetching user orders:', { error });
       throw error;
     }
   }
@@ -68,7 +69,7 @@ export class UserService {
       }
       return response.data as User;
     } catch (error) {
-      console.error('Error registering user:', error);
+      log.error('Error registering user:', { error });
       throw error;
     }
   }
@@ -84,7 +85,7 @@ export class UserService {
       }
       return response.data as AuthResult;
     } catch (error) {
-      console.error('Error logging in:', error);
+      log.error('Error logging in:', { error });
       throw error;
     }
   }
@@ -100,7 +101,7 @@ export class UserService {
       }
       return response.data as { message: string };
     } catch (error) {
-      console.error('Error logging out:', error);
+      log.error('Error logging out:', { error });
       throw error;
     }
   }
@@ -116,7 +117,7 @@ export class UserService {
       }
       return response.data as { message: string };
     } catch (error) {
-      console.error('Error initiating password reset:', error);
+      log.error('Error initiating password reset:', { error });
       throw error;
     }
   }
@@ -135,7 +136,7 @@ export class UserService {
       }
       return response.data as { message: string };
     } catch (error) {
-      console.error('Error changing password:', error);
+      log.error('Error changing password:', { error });
       throw error;
     }
   }
@@ -151,7 +152,7 @@ export class UserService {
       }
       return response.data as User;
     } catch (error) {
-      console.error('Error checking auth:', error);
+      log.error('Error checking auth:', { error });
       return null;
     }
   }

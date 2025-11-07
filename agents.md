@@ -200,7 +200,8 @@ specs/
 
 ### **Setup de Infraestrutura**
 1. **Firebase Configuration**: Hosting público alterado para 'public', Firestore com localização nam5, Cloud Functions com predeploy hooks
-2. **shadcn/ui Implementation**: 16 componentes base instalados, design system com CSS variables, dark mode support, path aliases configurados
+2. **shadcn/ui Implementation**: 16 componentes base instalados, design system com CSS variables, dark mode support, path aliases configurados.
+
 3. **TypeScript Setup**: Strict mode, path aliases (@/components, @/lib, @/ui), isolated modules
 4. **Build Optimization**: CRACO para configuração customizada, PostCSS + Tailwind CSS
 
@@ -366,6 +367,39 @@ feature/specific-task (optional - development)
 - [ ] Breaking changes documentadas?
 - [ ] Secrets/tokens não commitados?
 
+#### **Validação Pré-Commit Obrigatória**
+
+**Antes de cada commit, executar validação completa:**
+
+1. **Revisar Resultados do CI**: Verificar falhas nos jobs do GitHub Actions
+2. **Executar Validações Locais**:
+   - ✅ `npm run build` - Build successful (corrigidos imports de path alias, re-exports de tipos, chamadas de API)
+   - ✅ `npm audit --audit-level moderate` - Security audit (vulnerabilidades em dev dependencies apenas, não afetam produção)
+   - ⚠️ `npm run test:ci` - Tests (no tests found - implementar testes é prioridade futura)
+   - ❌ `npm run type-check` - TypeScript check (script não existe - usar `npx tsc --noEmit` diretamente)
+   - ❌ `npm run lint` - Linting (script não existe - configurar ESLint)
+3. **Corrigir Falhas Encontradas**:
+   - ✅ **Build**: Corrigidos imports de path alias, re-exports de tipos, chamadas de API
+   - ✅ **Security**: Vulnerabilidades em dev dependencies apenas (nth-check, postcss, webpack-dev-server)
+   - ⚠️ **Tests**: Nenhum teste implementado ainda
+   - ❌ **Linting**: ESLint não configurado
+   - ❌ **TypeScript**: Script type-check não existe
+4. **Build Final**: Executar `npm run build` para confirmar tudo funciona
+5. **Commit Seguro**: Só commitar após todas validações passarem
+
+**Status Atual (Nov 6, 2025)**:
+- ✅ **Build**: PASS - Projeto compila com sucesso
+- ✅ **Security**: PASS - Vulnerabilidades não afetam produção
+- ⚠️ **Tests**: FAIL - Nenhum teste implementado
+- ❌ **Linting**: FAIL - ESLint não configurado  
+- ❌ **TypeScript**: FAIL - Script type-check não existe
+
+**Ações Imediatas Necessárias**:
+1. Implementar suite de testes (Jest + React Testing Library)
+2. Configurar ESLint com regras apropriadas
+3. Adicionar script `type-check` ao package.json
+4. Corrigir todas as validações antes do próximo commit
+
 #### **Integração com Speckit**
 
 **Sincronizar `tasks.md` com Commits:**
@@ -415,14 +449,6 @@ git stash push -m "WIP: implementing feature X"
 # Retomar trabalho
 git stash pop
 ```
-
-## 🎯 Benefícios Estratégicos
-
-### **Business Agility**
-- **Time to Market**: 60-80% mais rápido vs desenvolvimento tradicional
-- **Risk Mitigation**: Feature failure não compromete produto
-- **Market Adaptation**: Releases frequentes permitem pivôs
-- **Revenue Acceleration**: Valor entregue incrementalmente
 
 ## 🎯 Benefícios Estratégicos
 

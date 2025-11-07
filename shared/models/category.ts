@@ -1,7 +1,7 @@
 import { Category } from '../types';
 
 // Category model with validation
-export { Category };
+export type { Category };
 
 export class CategoryModel {
   static validate(category: Partial<Category>): { isValid: boolean; errors: string[] } {

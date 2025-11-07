@@ -79,7 +79,7 @@ export class SecurityService {
       errors.push('Password must contain at least one number');
     }
 
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?/]/.test(password)) {
       errors.push('Password must contain at least one special character');
     }
 
@@ -115,23 +115,23 @@ export class SecurityService {
   /**
    * GDPR compliance: Data anonymization
    */
-  anonymizeUserData(userData: any): any {
+  anonymizeUserData(userData: Record<string, unknown>): Record<string, unknown> {
     const anonymized = { ...userData };
 
     // Remove or hash personal identifiable information
-    if (anonymized.email) {
+    if (anonymized.email && typeof anonymized.email === 'string') {
       anonymized.email = this.hashData(anonymized.email) + '@anonymized.com';
     }
 
-    if (anonymized.phone) {
+    if (anonymized.phone && typeof anonymized.phone === 'string') {
       anonymized.phone = '***-***-' + anonymized.phone.slice(-4);
     }
 
-    if (anonymized.firstName) {
+    if (anonymized.firstName && typeof anonymized.firstName === 'string') {
       anonymized.firstName = anonymized.firstName.charAt(0) + '***';
     }
 
-    if (anonymized.lastName) {
+    if (anonymized.lastName && typeof anonymized.lastName === 'string') {
       anonymized.lastName = anonymized.lastName.charAt(0) + '***';
     }
 
@@ -155,7 +155,7 @@ export class SecurityService {
       // 5. Clear personal data from all collections
 
       // Placeholder implementation
-      console.log(`Deleting data for user: ${userId}`);
+      log.info(`Deleting data for user: ${userId}`);
     } catch (error) {
       log.error('Failed to delete user data', { error, userId });
       throw new Error('Failed to process data deletion request');
@@ -165,7 +165,16 @@ export class SecurityService {
   /**
    * GDPR compliance: Data export
    */
-  async exportUserData(userId: string): Promise<any> {
+  async exportUserData(userId: string): Promise<{
+    userId: string;
+    exportDate: string;
+    data: {
+      profile: Record<string, unknown>;
+      orders: unknown[];
+      reviews: unknown[];
+      analytics: Record<string, unknown>;
+    };
+  }> {
     try {
       // This would collect all user data across services
       log.info('GDPR: User data export requested', { userId });
@@ -245,7 +254,7 @@ export class SecurityService {
   /**
    * Log security events
    */
-  logSecurityEvent(event: string, details: any): void {
+  logSecurityEvent(event: string, details: Record<string, unknown>): void {
     log.warn('Security Event', { event, details, timestamp: new Date().toISOString() });
   }
 }

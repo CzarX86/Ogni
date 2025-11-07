@@ -1,3 +1,5 @@
+import { log } from '../utils/logger';
+
 export interface PaymentData {
   transaction_amount: number;
   description: string;
@@ -23,6 +25,49 @@ export interface PaymentResponse {
   date_created: string;
   date_approved?: string;
   date_last_updated: string;
+}
+
+export interface RefundResponse {
+  id: number;
+  payment_id: number;
+  amount: number;
+  date_created: string;
+  status: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  payment_type_id: string;
+  status: string;
+  secure_thumbnail: string;
+  thumbnail: string;
+  deferred_capture: string;
+  settings: Array<{
+    card_number: {
+      length: number;
+      validation: string;
+    };
+    bin: {
+      pattern: string;
+      installments_pattern: string;
+      exclusion_pattern: string;
+    };
+    security_code: {
+      length: number;
+      card_location: string;
+      mode: string;
+    };
+  }>;
+  additional_info_needed: string[];
+  min_allowed_amount: number;
+  max_allowed_amount: number;
+  accreditation_time: number;
+  financial_institutions: Array<{
+    id: string;
+    description: string;
+  }>;
+  processing_modes: string[];
 }
 
 export class PaymentService {
@@ -90,7 +135,7 @@ export class PaymentService {
         init_point: data.init_point,
       };
     } catch (error) {
-      console.error('Error creating payment preference:', error);
+      log.error('Error creating payment preference:', { error });
       throw error;
     }
   }
@@ -114,7 +159,7 @@ export class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error processing payment:', error);
+      log.error('Error processing payment:', { error });
       throw error;
     }
   }
@@ -134,13 +179,13 @@ export class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error getting payment status:', error);
+      log.error('Error getting payment status:', { error });
       throw error;
     }
   }
 
   // Refund payment
-  static async refundPayment(paymentId: string, amount?: number): Promise<any> {
+  static async refundPayment(paymentId: string, amount?: number): Promise<RefundResponse> {
     try {
       const response = await fetch(`${this.MERCADO_PAGO_API_URL}/payments/${paymentId}/refunds`, {
         method: 'POST',
@@ -157,13 +202,13 @@ export class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error refunding payment:', error);
+      log.error('Error refunding payment:', { error });
       throw error;
     }
   }
 
   // Get available payment methods
-  static async getPaymentMethods(): Promise<any[]> {
+  static async getPaymentMethods(): Promise<PaymentMethod[]> {
     try {
       const response = await fetch(`${this.MERCADO_PAGO_API_URL}/payment_methods`, {
         headers: {
@@ -177,7 +222,7 @@ export class PaymentService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error getting payment methods:', error);
+      log.error('Error getting payment methods:', { error });
       throw error;
     }
   }

@@ -22,7 +22,7 @@ interface ProfileFormProps {
     phone: string;
     address: string;
   };
-  onUpdate: (updatedProfile: any) => void;
+  onUpdate: (_updatedProfile: UserProfile) => void;
 }
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onUpdate }) => {
@@ -51,7 +51,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onUpdate 
 
       const updatedUser = await UserService.updateUserProfile(updateData);
       setSuccess('Profile updated successfully');
-      onUpdate(updatedUser);
+      onUpdate({
+        phone: updatedUser.profile?.phone,
+      });
       reset({
         displayName: updatedUser.displayName || '',
         phone: updatedUser.profile?.phone || '',
@@ -129,7 +131,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onUpdate 
                 className="pl-10"
                 {...register('phone', {
                   pattern: {
-                    value: /^\+?[\d\s\-\(\)]+$/,
+                    value: /^[0-9\s\-\+\(\)]+$/, // eslint-disable-line no-useless-escape
                     message: 'Invalid phone number format',
                   },
                 })}

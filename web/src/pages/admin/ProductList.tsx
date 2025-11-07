@@ -5,6 +5,7 @@ import { ProductTable } from '../../components/admin/products/ProductTable';
 import { ProductFilters } from '../../components/admin/products/ProductFilters';
 import { ProductForm } from '../../components/admin/products/ProductForm';
 import { BulkOperations } from '../../components/admin/products/BulkOperations';
+import { log } from '../../shared/utils/logger';
 
 export const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -59,24 +60,24 @@ export const ProductList: React.FC = () => {
 
   // Filter and sort products
   const filteredAndSortedProducts = React.useMemo(() => {
-    let filtered = products.filter(product => {
+    const filtered = products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !selectedCategory || product.categoryId === selectedCategory;
       return matchesSearch && matchesCategory;
     });
 
     filtered.sort((a, b) => {
-      let aValue: any = a[sortBy];
-      let bValue: any = b[sortBy];
+      let aValue: string | number | Date = a[sortBy as keyof Product] as string | number | Date;
+      let bValue: string | number | Date = b[sortBy as keyof Product] as string | number | Date;
 
       if (sortBy === 'createdAt') {
-        aValue = aValue.getTime();
-        bValue = bValue.getTime();
+        aValue = (aValue as Date).getTime();
+        bValue = (bValue as Date).getTime();
       }
 
       if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
+        aValue = (aValue as string).toLowerCase();
+        bValue = (bValue as string).toLowerCase();
       }
 
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
@@ -166,13 +167,13 @@ export const ProductList: React.FC = () => {
 
   const handleBulkActivate = (productIds: string[]) => {
     // Note: Product type doesn't have 'active' field, so this is a placeholder
-    console.log('Bulk activate products:', productIds);
+    log.info('Bulk activate products:', { productIds });
     setSelectedProducts([]);
   };
 
   const handleBulkDeactivate = (productIds: string[]) => {
     // Note: Product type doesn't have 'active' field, so this is a placeholder
-    console.log('Bulk deactivate products:', productIds);
+    log.info('Bulk deactivate products:', { productIds });
     setSelectedProducts([]);
   };
 

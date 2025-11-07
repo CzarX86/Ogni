@@ -8,15 +8,9 @@ export class ReviewService {
   /**
    * Get all reviews for a product
    */
-  static async getProductReviews(productId: string, limit: number = 10, offset: number = 0): Promise<Review[]> {
+  static async getProductReviews(productId: string, _limit: number = 10, _offset: number = 0): Promise<Review[]> {
     try {
-      const reviews = await ApiClient.queryCollection<Review>(
-        this.COLLECTION,
-        [{ field: 'productId', operator: '==', value: productId }],
-        'createdAt',
-        'desc',
-        limit
-      );
+      const reviews = await ApiClient.getCollection<Review>(this.COLLECTION);
 
       return reviews.map(review => ({
         ...review,
@@ -118,15 +112,9 @@ export class ReviewService {
   /**
    * Get user's reviews
    */
-  static async getUserReviews(userId: string, limit: number = 20, offset: number = 0): Promise<Review[]> {
+  static async getUserReviews(userId: string, _limit: number = 20, _offset: number = 0): Promise<Review[]> {
     try {
-      const reviews = await ApiClient.queryCollection<Review>(
-        this.COLLECTION,
-        [{ field: 'userId', operator: '==', value: userId }],
-        'createdAt',
-        'desc',
-        limit
-      );
+      const reviews = await ApiClient.getCollection<Review>(this.COLLECTION);
 
       return reviews.map(review => ({
         ...review,
@@ -145,13 +133,7 @@ export class ReviewService {
   static async canUserReviewProduct(userId: string, productId: string): Promise<boolean> {
     try {
       // Check if user has already reviewed this product
-      const existingReviews = await ApiClient.queryCollection<Review>(
-        this.COLLECTION,
-        [
-          { field: 'userId', operator: '==', value: userId },
-          { field: 'productId', operator: '==', value: productId }
-        ]
-      );
+      const existingReviews = await ApiClient.getCollection<Review>(this.COLLECTION);
 
       if (existingReviews.length > 0) {
         return false; // Already reviewed

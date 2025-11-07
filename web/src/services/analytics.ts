@@ -1,43 +1,51 @@
 // Basic analytics service for tracking events
-export class AnalyticsService {
-  private static events: any[] = [];
+import { log } from 'shared/utils/logger';
 
-  static trackEvent(eventName: string, data: any): void {
-    const event = {
+interface AnalyticsEvent {
+  event: string;
+  timestamp: string;
+  [key: string]: unknown;
+}
+
+export class AnalyticsService {
+  private static events: AnalyticsEvent[] = [];
+
+  static trackEvent(eventName: string, data: Record<string, unknown>): void {
+    const event: AnalyticsEvent = {
       event: eventName,
       timestamp: new Date().toISOString(),
       ...data,
     };
 
     this.events.push(event);
-    console.log('Analytics event:', event);
+    log.info('Analytics event:', { event });
 
     // In production, send to analytics service
     // this.sendToAnalytics(event);
   }
 
-  static trackConversion(conversionType: string, data: any): void {
-    const conversion = {
-      conversion: conversionType,
+  static trackConversion(conversionType: string, data: Record<string, unknown>): void {
+    const conversion: AnalyticsEvent = {
+      event: conversionType,
       timestamp: new Date().toISOString(),
       ...data,
     };
 
-    console.log('Analytics conversion:', conversion);
+    log.info('Analytics conversion:', { conversion });
     // In production, send to conversion tracking
     // this.sendConversion(conversion);
   }
 
-  static getEvents(): any[] {
+  static getEvents(): AnalyticsEvent[] {
     return this.events;
   }
 
   // Placeholder for future analytics integration
-  private static sendToAnalytics(event: any): void {
+  private static sendToAnalytics(_event: AnalyticsEvent): void {
     // Implement actual analytics sending (Google Analytics, Mixpanel, etc.)
   }
 
-  private static sendConversion(conversion: any): void {
+  private static sendConversion(_conversion: AnalyticsEvent): void {
     // Implement conversion tracking
   }
 }

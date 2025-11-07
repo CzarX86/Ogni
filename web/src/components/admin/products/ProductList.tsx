@@ -6,6 +6,7 @@ import { Input } from '../../ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Badge } from '../../ui/badge';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { log } from 'shared/utils/logger';
 
 interface ProductListProps {
   onEdit: (product: Product) => void;
@@ -41,7 +42,7 @@ export const ProductList: React.FC<ProductListProps> = ({
       const productList = await ProductService.getAllProducts();
       setProducts(productList);
     } catch (error) {
-      console.error('Error loading products:', error);
+      log.error('Error loading products', { error });
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ export const ProductList: React.FC<ProductListProps> = ({
         await ProductService.deleteProduct(productId);
         await loadProducts(); // Reload the list
       } catch (error) {
-        console.error('Error deleting product:', error);
+        log.error('Error deleting product', { error, productId });
         alert('Error deleting product');
       }
     }

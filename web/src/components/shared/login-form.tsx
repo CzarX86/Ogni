@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
+import { log } from 'shared/utils/logger';
 
 interface LoginFormInputs {
   email: string;
@@ -13,7 +14,7 @@ const LoginForm: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
 
   const onSubmit = (data: LoginFormInputs) => {
-    console.log('Login submitted:', data);
+    log.info('Login submitted:', { data });
     // Aqui você adicionaria a lógica de autenticação
   };
 

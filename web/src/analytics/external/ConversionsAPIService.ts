@@ -1,4 +1,4 @@
-import { log } from '@/shared/utils/logger';
+import { log } from 'shared/utils/logger';
 
 export interface ConversionsAPIEvent {
   event_name: string;
@@ -28,7 +28,7 @@ export interface ConversionsAPIEvent {
     num_items?: number;
     search_string?: string;
     status?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   event_source_url?: string;
   action_source: 'website' | 'mobile_app' | 'phone_call' | 'chat' | 'physical_store' | 'system_generated' | 'other';

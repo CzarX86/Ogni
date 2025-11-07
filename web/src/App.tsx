@@ -12,10 +12,11 @@ import FeedPage from './pages/feed/Feed';
 import { ProductList } from './pages/admin/ProductList';
 import SeedPage from './pages/admin/seed';
 import { initializeAnalytics } from './analytics/external';
+import { log } from 'shared/utils/logger';
 import './App.css';
 
 // Debug environment variables
-console.log('Environment check:', {
+log.debug('Environment check:', {
   firebaseApiKey: !!process.env.REACT_APP_FIREBASE_API_KEY,
   firebaseProjectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   mercadoPagoToken: !!process.env.REACT_APP_MERCADO_PAGO_ACCESS_TOKEN,
@@ -27,9 +28,9 @@ function App() {
     // Initialize analytics on app start
     initializeAnalytics().then((analyticsManager) => {
       if (analyticsManager) {
-        console.log('Analytics initialized successfully');
+        log.info('Analytics initialized successfully');
       } else {
-        console.warn('Analytics initialization failed');
+        log.warn('Analytics initialization failed');
       }
     });
   }, []);

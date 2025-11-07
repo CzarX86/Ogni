@@ -115,7 +115,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                     <svg
                       key={i}
                       className={`w-5 h-5 ${
-                        i < Math.floor(product.rating!)
+                        i < Math.floor(product.rating ?? 0)
                           ? 'text-yellow-400'
                           : 'text-gray-300'
                       }`}

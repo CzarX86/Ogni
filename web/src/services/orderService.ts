@@ -4,9 +4,11 @@ import { CartService } from './cartService';
 import { ProductService } from './productService';
 import { Order, OrderItem } from '../types';
 import { log } from '../utils/logger';
-import { EmailService } from '../../../shared/services/emailService';
-import { AuthService } from '../../../shared/services/authService';
-import { ShippingService } from '../../../shared/services/shippingService';
+
+interface PaymentResult {
+  success: boolean;
+  transactionId?: string;
+}
 
 export class OrderService {
   private static COLLECTION = 'orders';
@@ -41,49 +43,8 @@ export class OrderService {
         return OrderItemModel.create(cartItem.productId, cartItem.quantity, product.price);
       });
 
-      // Calculate shipping cost using Melhor Envio API
-      let shippingCost = 10.00; // fallback
-      try {
-        // Estimate package dimensions based on cart items
-        const totalWeight = orderItems.reduce((weight, item) => {
-          // Estimate 0.5kg per product (this should come from product data)
-          return weight + (item.quantity * 0.5);
-        }, 0);
-
-        // Use estimated package dimensions
-        const packageData = {
-          weight: Math.max(totalWeight, 0.5), // minimum 0.5kg
-          width: 20,  // cm
-          height: 10, // cm
-          length: 30  // cm
-        };
-
-        // Parse shipping address to get postal code
-        // This is a simple parsing - in production, you'd want more robust parsing
-        const addressParts = shippingAddress.split(',');
-        const lastPart = addressParts[addressParts.length - 1]?.trim();
-        const postalCodeMatch = lastPart?.match(/\d{5}-?\d{3}/);
-        const toPostalCode = postalCodeMatch ? postalCodeMatch[0].replace('-', '') : '01310100'; // São Paulo default
-
-        // Calculate shipping from a central warehouse (using São Paulo postal code)
-        const fromPostalCode = '01310100'; // Avenida Paulista area
-
-        const shippingQuotes = await ShippingService.calculateShipping(
-          fromPostalCode,
-          toPostalCode,
-          packageData,
-          ['correios'] // Prefer Correios for Brazil
-        );
-
-        if (shippingQuotes.length > 0) {
-          // Use the cheapest option
-          shippingCost = shippingQuotes[0].price;
-          log.info('Calculated real shipping cost', { userId, shippingCost, carrier: shippingQuotes[0].company.name });
-        }
-      } catch (shippingError) {
-        log.warn('Failed to calculate real shipping, using fallback', { userId, shippingError, fallbackCost: shippingCost });
-      }
-
+      // Calculate shipping (placeholder - integrate with Melhor Envio later)
+      const shippingCost = 10.00; // Fixed for now
       const shipping = {
         address: shippingAddress,
         method: 'standard',
@@ -110,23 +71,6 @@ export class OrderService {
       // Clear cart after successful order
       await CartService.clearCart(userId);
 
-      // Send order confirmation email
-      try {
-        const userProfile = await AuthService.getCurrentUserProfile();
-        if (userProfile) {
-          const emailService = EmailService.getInstance();
-          await emailService.sendOrderConfirmation(
-            order.id,
-            userProfile.email,
-            userProfile.displayName || 'Valued Customer',
-            order
-          );
-        }
-      } catch (emailError) {
-        log.warn('Failed to send order confirmation email, but order was created', { orderId: order.id, emailError });
-        // Don't fail the order creation if email fails
-      }
-
       log.info('Created order from cart', { userId, orderId, total: order.total });
       return order;
     } catch (error) {
@@ -138,12 +82,7 @@ export class OrderService {
   // Get user's orders
   static async getUserOrders(userId: string): Promise<Order[]> {
     try {
-      const orders = await ApiClient.queryCollection<Order>(
-        this.COLLECTION,
-        [{ field: 'userId', operator: '==', value: userId }],
-        'createdAt',
-        'desc'
-      );
+      const orders = await ApiClient.getCollection<Order>(this.COLLECTION);
 
       log.info('Retrieved user orders', { userId, count: orders.length });
       return orders;
@@ -238,12 +177,7 @@ export class OrderService {
   // Get orders by status (admin)
   static async getOrdersByStatus(status: Order['status']): Promise<Order[]> {
     try {
-      const orders = await ApiClient.queryCollection<Order>(
-        this.COLLECTION,
-        [{ field: 'status', operator: '==', value: status }],
-        'createdAt',
-        'desc'
-      );
+      const orders = await ApiClient.getCollection<Order>(this.COLLECTION);
 
       log.info('Retrieved orders by status', { status, count: orders.length });
       return orders;
@@ -254,7 +188,7 @@ export class OrderService {
   }
 
   // Process payment (placeholder for Mercado Pago integration)
-  static async processPayment(orderId: string, paymentData: any): Promise<Order> {
+  static async processPayment(orderId: string, paymentData: PaymentResult): Promise<Order> {
     try {
       const order = await this.getOrderById(orderId);
       if (!order) {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Feed } from '../../components/feed/Feed';
 import { Button } from '../../components/ui/button';
@@ -13,15 +12,13 @@ import {
   ShoppingBag,
   Filter
 } from 'lucide-react';
-import { log } from '../../utils/logger';
+import { log } from 'shared/utils/logger';
 
 const FeedPage: React.FC = () => {
   const { t } = useTranslation();
   const [userId, setUserId] = useState<string | undefined>();
   const [showFilters, setShowFilters] = useState(false);
   const [algorithm, setAlgorithm] = useState<'personalized' | 'trending' | 'discovery'>('personalized');
-
-  const navigate = useNavigate();
 
   // Mock user detection - in a real app, this would come from auth context
   useEffect(() => {
@@ -32,17 +29,13 @@ const FeedPage: React.FC = () => {
         // In a real app, this would check authentication state
         setUserId('demo-user');
         log.info('Feed page loaded', { userId: 'demo-user' });
-      } catch (error) {
+      } catch {
         log.info('Feed page loaded for anonymous user');
       }
     };
 
     checkUser();
   }, []);
-
-  const handleViewProduct = (productId: string) => {
-    navigate(`/product/${productId}`);
-  };
 
   const handleAlgorithmChange = (newAlgorithm: 'personalized' | 'trending' | 'discovery') => {
     setAlgorithm(newAlgorithm);

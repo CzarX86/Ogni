@@ -17,7 +17,7 @@ export interface QuickReply {
   id: string;
   text: string;
   action?: string;
-  payload?: any;
+  payload?: unknown;
 }
 
 export interface ChatSession {
@@ -38,6 +38,14 @@ export interface WhatsAppConfig {
   phoneNumber: string;
   defaultMessage: string;
   businessName: string;
+}
+
+export interface ChatAnalytics {
+  totalSessions: number;
+  totalMessages: number;
+  whatsappTransfers: number;
+  avgSessionDuration: number;
+  satisfactionRate: number;
 }
 
 export class ChatService {
@@ -99,7 +107,7 @@ export class ChatService {
   /**
    * Generate bot response based on user message
    */
-  static generateBotResponse(userMessage: string, context?: ChatMessage[]): ChatMessage {
+  static generateBotResponse(userMessage: string, _context?: ChatMessage[]): ChatMessage {
     const message = userMessage.toLowerCase().trim();
 
     // Analyze intent and generate response
@@ -341,32 +349,15 @@ export class ChatService {
   /**
    * Get chat analytics
    */
-  static async getAnalytics(dateRange?: { start: Date; end: Date }): Promise<{
-    totalSessions: number;
-    totalMessages: number;
-    whatsappTransfers: number;
-    avgSessionDuration: number;
-    satisfactionRate: number;
-  }> {
-    try {
-      // In a real implementation, aggregate from Firestore
-      return {
-        totalSessions: 1250,
-        totalMessages: 8750,
-        whatsappTransfers: 320,
-        avgSessionDuration: 180, // seconds
-        satisfactionRate: 4.2 // out of 5
-      };
-    } catch (error) {
-      log.error('Failed to get chat analytics', { error });
-      return {
-        totalSessions: 0,
-        totalMessages: 0,
-        whatsappTransfers: 0,
-        avgSessionDuration: 0,
-        satisfactionRate: 0
-      };
-    }
+  static async getAnalytics(_dateRange?: { start: Date; end: Date }): Promise<ChatAnalytics> {
+    // In a real implementation, aggregate from Firestore
+    return {
+      totalSessions: 1250,
+      totalMessages: 8750,
+      whatsappTransfers: 320,
+      avgSessionDuration: 180, // seconds
+      satisfactionRate: 4.2 // out of 5
+    };
   }
 
   /**

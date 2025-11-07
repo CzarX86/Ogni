@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-
 interface AppDetectionResult {
   isAppInstalled: boolean;
   isMobile: boolean;
@@ -7,61 +5,22 @@ interface AppDetectionResult {
   canOpenApp: boolean;
 }
 
-/**
- * Hook to detect if the mobile app is installed and provide app opening functionality
- */
 export const useAppInstalled = (): AppDetectionResult => {
-  const [isAppInstalled, setIsAppInstalled] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [platform, setPlatform] = useState<'ios' | 'android' | 'unknown'>('unknown');
-  const [canOpenApp, setCanOpenApp] = useState(false);
+  // Detect mobile platform and app installation status
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(userAgent);
+  const isAndroid = /android/.test(userAgent);
+  const isMobileDevice = isIOS || isAndroid;
 
-  useEffect(() => {
-    // Detect mobile platform
-    const userAgent = navigator.userAgent.toLowerCase();
-    const isIOS = /iphone|ipad|ipod/.test(userAgent);
-    const isAndroid = /android/.test(userAgent);
-    const isMobileDevice = isIOS || isAndroid;
+  const platform: 'ios' | 'android' | 'unknown' = isIOS ? 'ios' : isAndroid ? 'android' : 'unknown';
 
-    setIsMobile(isMobileDevice);
-
-    if (isIOS) {
-      setPlatform('ios');
-    } else if (isAndroid) {
-      setPlatform('android');
-    }
-
-    // Check if app is installed (simplified check)
-    // In a real implementation, this would check for custom URL scheme support
-    const checkAppInstalled = async () => {
-      if (!isMobileDevice) {
-        setCanOpenApp(false);
-        return;
-      }
-
-      try {
-        // For iOS, we can try to open the app and see if it succeeds
-        // For Android, we can check if the intent URL is supported
-        const appUrl = platform === 'ios'
-          ? 'ogni://' // iOS custom URL scheme
-          : 'intent://ogni/#Intent;scheme=ogni;package=com.ogni.app;end'; // Android intent
-
-        // Try to open the app (this is a simplified check)
-        // In production, you'd use a more sophisticated method
-        setCanOpenApp(true);
-        setIsAppInstalled(true); // Assume installed for demo purposes
-      } catch (error) {
-        setCanOpenApp(false);
-        setIsAppInstalled(false);
-      }
-    };
-
-    checkAppInstalled();
-  }, [platform]);
+  // For demo purposes, assume app is installed on mobile devices
+  const canOpenApp = isMobileDevice;
+  const isAppInstalled = isMobileDevice;
 
   return {
     isAppInstalled,
-    isMobile,
+    isMobile: isMobileDevice,
     platform,
     canOpenApp,
   };

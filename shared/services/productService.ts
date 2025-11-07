@@ -13,7 +13,8 @@ export class ProductService {
     offset?: number;
   } = {}): Promise<Product[]> {
     try {
-      const filters = options.categoryId ? [{ field: 'categoryId', operator: '==', value: options.categoryId }] : [];
+      const filters: { field: string; operator: '==' | '!=' | '<' | '<=' | '>' | '>=' | 'array-contains' | 'in' | 'array-contains-any' | 'not-in'; value: any }[] = 
+        options.categoryId ? [{ field: 'categoryId', operator: '==' as const, value: options.categoryId }] : [];
       const products = await ApiClient.queryCollection<Product>(
         this.COLLECTION,
         filters,

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Product } from '../../types';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { ProductForm } from '../../components/admin/products/ProductForm';
+import { log } from '../../shared/utils/logger';
 
 export const ProductFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +43,7 @@ export const ProductFormPage: React.FC = () => {
 
   const handleSubmit = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     // In real app, call API to create/update product
-    console.log('Saving product:', productData);
+    log.info('Saving product:', { productData, isEditing, id });
 
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));

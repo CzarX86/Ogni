@@ -1,7 +1,7 @@
 import { ApiClient } from './api';
 import { CategoryModel } from '../models/category';
 import { Category } from '../types';
-import { log } from '../utils/logger';
+import { log } from 'shared/utils/logger';
 
 export class CategoryService {
   private static COLLECTION = 'categories';
@@ -85,12 +85,9 @@ export class CategoryService {
   // Get categories by parent (for subcategories)
   static async getCategoriesByParent(parentId?: string): Promise<Category[]> {
     try {
-      const filters = parentId !== undefined ? [{ field: 'parentId', operator: '==', value: parentId }] : [];
       const categories = await ApiClient.queryCollection<Category>(
         this.COLLECTION,
-        filters,
-        'name',
-        'asc'
+        parentId !== undefined ? [{ field: 'parentId', operator: '==' as const, value: parentId }] : []
       );
 
       log.info('Retrieved categories by parent', { parentId, count: categories.length });

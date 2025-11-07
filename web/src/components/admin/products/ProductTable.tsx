@@ -7,8 +7,8 @@ interface ProductTableProps {
   onDelete: (productId: string) => void;
   loading?: boolean;
   selectedProducts?: string[];
-  onProductSelect?: (productId: string, selected: boolean) => void;
-  onSelectAll?: (selected: boolean) => void;
+  onProductSelect?: (_productId: string, _selected: boolean) => void;
+  onSelectAll?: (_selected: boolean) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({

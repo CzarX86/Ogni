@@ -2,11 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FeedService } from '../../services/feedService';
 import { FeedItem as FeedItemType } from '@/shared/types';
 import { VirtualizedFeed } from './VirtualizedFeed';
-import { Card } from '../ui/card';
-import { Skeleton } from '../ui/skeleton';
-import { Button } from '../ui/button';
-import { AlertCircle, RefreshCw } from 'lucide-react';
-import { log } from '../../utils/logger';
+import { log } from 'shared/utils/logger';
 
 interface FeedProps {
   userId?: string;
@@ -20,7 +16,6 @@ export const Feed: React.FC<FeedProps> = ({ userId, className = '' }) => {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
-  const [refreshing, setRefreshing] = useState(false);
 
   const ITEMS_PER_LOAD = 20;
 
@@ -28,7 +23,6 @@ export const Feed: React.FC<FeedProps> = ({ userId, className = '' }) => {
   const loadFeed = useCallback(async (refresh = false) => {
     try {
       if (refresh) {
-        setRefreshing(true);
         setOffset(0);
       } else {
         setLoading(true);
@@ -62,38 +56,8 @@ export const Feed: React.FC<FeedProps> = ({ userId, className = '' }) => {
       log.error('Failed to load feed', { error: err, userId, refresh });
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, [offset, userId]);
-
-  // Load more items for infinite scroll
-  const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
-
-    setLoadingMore(true);
-    try {
-      const feedData = await FeedService.getFeed({
-        limit: ITEMS_PER_LOAD,
-        offset,
-        userId
-      });
-
-      setItems(prev => [...prev, ...feedData.items]);
-      setHasMore(feedData.hasMore);
-      setOffset(prev => prev + feedData.items.length);
-
-      log.info('Feed loaded more', {
-        itemCount: feedData.items.length,
-        totalItems: items.length + feedData.items.length
-      });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load more items';
-      setError(errorMessage);
-      log.error('Failed to load more feed items', { error: err, offset, userId });
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [loadingMore, hasMore, offset, userId, items.length]);
 
   // Handle pull to refresh
   const handleRefresh = useCallback(async () => {
@@ -118,7 +82,7 @@ export const Feed: React.FC<FeedProps> = ({ userId, className = '' }) => {
 
       log.info('Feed loaded more (virtualized)', {
         itemCount: feedData.items.length,
-        totalItems: items.length + feedData.items.length
+        hasMore: feedData.hasMore
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load more items';
@@ -127,12 +91,12 @@ export const Feed: React.FC<FeedProps> = ({ userId, className = '' }) => {
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMore, offset, userId, items.length]);
+  }, [loadingMore, hasMore, offset, userId]);
 
   // Initial load
   useEffect(() => {
     loadFeed();
-  }, []); // Only run once on mount
+  }, [loadFeed]); // Include loadFeed dependency
 
   return (
     <div className={className}>

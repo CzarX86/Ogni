@@ -21,11 +21,17 @@ export class EmailService {
   private static instance: EmailService;
   private apiKey: string;
   private baseURL: string;
+  private fromEmail: EmailRecipient;
 
   private constructor() {
-    // In production, this would come from environment variables
-    this.apiKey = process.env.REACT_APP_EMAIL_API_KEY || 'email-api-key';
-    this.baseURL = process.env.REACT_APP_EMAIL_API_BASE_URL || 'https://api.emailprovider.com/v1';
+    // SendGrid configuration
+    this.apiKey = process.env.REACT_APP_SENDGRID_API_KEY || '';
+    this.baseURL = 'https://api.sendgrid.com/v3';
+    this.fromEmail = { email: 'noreply@ogni.com.br', name: 'Ogni E-commerce' };
+
+    if (!this.apiKey || this.apiKey === 'your_sendgrid_api_key_here') {
+      log.warn('SendGrid API key not configured. Email sending will be simulated.');
+    }
   }
 
   static getInstance(): EmailService {
@@ -38,7 +44,7 @@ export class EmailService {
   /**
    * Send order confirmation email
    */
-  async sendOrderConfirmation(orderId: string, customerEmail: string, customerName: string, orderDetails: any): Promise<void> {
+  async sendOrderConfirmation(orderId: string, customerEmail: string, customerName: string, orderDetails: Record<string, unknown>): Promise<void> {
     try {
       const template = this.getOrderConfirmationTemplate(orderId, customerName, orderDetails);
 
@@ -57,7 +63,7 @@ export class EmailService {
   /**
    * Send order status update email
    */
-  async sendOrderStatusUpdate(orderId: string, customerEmail: string, customerName: string, newStatus: string, orderDetails: any): Promise<void> {
+  async sendOrderStatusUpdate(orderId: string, customerEmail: string, customerName: string, newStatus: string, orderDetails: Record<string, unknown>): Promise<void> {
     try {
       const template = this.getOrderStatusUpdateTemplate(orderId, customerName, newStatus, orderDetails);
 
@@ -76,7 +82,7 @@ export class EmailService {
   /**
    * Send shipping confirmation email
    */
-  async sendShippingConfirmation(orderId: string, customerEmail: string, customerName: string, trackingInfo: any): Promise<void> {
+  async sendShippingConfirmation(orderId: string, customerEmail: string, customerName: string, trackingInfo: Record<string, unknown>): Promise<void> {
     try {
       const template = this.getShippingConfirmationTemplate(orderId, customerName, trackingInfo);
 
@@ -152,7 +158,7 @@ export class EmailService {
   /**
    * Send newsletter
    */
-  async sendNewsletter(recipients: EmailRecipient[], newsletterContent: any): Promise<void> {
+  async sendNewsletter(recipients: EmailRecipient[], newsletterContent: Record<string, unknown>): Promise<void> {
     try {
       const template = this.getNewsletterTemplate(newsletterContent);
 
@@ -169,51 +175,71 @@ export class EmailService {
   }
 
   /**
-   * Generic email sending method
+   * Generic email sending method using SendGrid
    */
   private async sendEmail(request: SendEmailRequest): Promise<void> {
-    // In a real implementation, this would call an email service API
-    // For now, we'll simulate the email sending
-
     const recipients = Array.isArray(request.to) ? request.to : [request.to];
+    const from = request.from || this.fromEmail;
 
-    // Simulate API call
-    console.log('Sending email:', {
-      to: recipients,
-      subject: request.template.subject,
-      from: request.from || { email: 'noreply@ogni.com', name: 'Ogni' }
-    });
+    // If API key is not configured, simulate sending
+    if (!this.apiKey || this.apiKey === 'your_sendgrid_api_key_here') {
+      log.info('📧 [SIMULATED] Sending email:', {
+        to: recipients.map(r => r.email),
+        subject: request.template.subject,
+        from: from.email
+      });
+      await new Promise(resolve => setTimeout(resolve, 100)); // Simulate delay
+      return;
+    }
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // SendGrid API call
+    const sendGridData = {
+      personalizations: [{
+        to: recipients.map(recipient => ({
+          email: recipient.email,
+          name: recipient.name
+        })),
+        subject: request.template.subject
+      }],
+      from: {
+        email: from.email,
+        name: from.name
+      },
+      content: [
+        {
+          type: 'text/html',
+          value: request.template.html
+        }
+      ]
+    };
 
-    // In production, this would be:
-    /*
-    const response = await fetch(`${this.baseURL}/emails`, {
+    // Add text content if provided
+    if (request.template.text) {
+      sendGridData.content.push({
+        type: 'text/plain',
+        value: request.template.text
+      });
+    }
+
+    const response = await fetch(`${this.baseURL}/mail/send`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        to: recipients,
-        from: request.from || { email: 'noreply@ogni.com', name: 'Ogni' },
-        subject: request.template.subject,
-        html: request.template.html,
-        text: request.template.text
-      })
+      body: JSON.stringify(sendGridData)
     });
 
     if (!response.ok) {
-      throw new Error('Email service error');
+      const errorData = await response.text();
+      throw new Error(`SendGrid API error: ${response.status} ${errorData}`);
     }
-    */
   }
 
   /**
    * Email templates
    */
-  private getOrderConfirmationTemplate(orderId: string, customerName: string, orderDetails: any): EmailTemplate {
+  private getOrderConfirmationTemplate(orderId: string, customerName: string, orderDetails: Record<string, unknown>): EmailTemplate {
     return {
       subject: `Order Confirmation - ${orderId}`,
       html: `
@@ -224,18 +250,18 @@ export class EmailService {
           <div style="background: #f5f5f5; padding: 20px; margin: 20px 0;">
             <h3>Order Details</h3>
             <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Total:</strong> R$ ${orderDetails.total?.toFixed(2)}</p>
-            <p><strong>Status:</strong> ${orderDetails.status}</p>
+            <p><strong>Total:</strong> R$ ${typeof orderDetails.total === 'number' ? orderDetails.total.toFixed(2) : 'N/A'}</p>
+            <p><strong>Status:</strong> ${String(orderDetails.status || 'Processing')}</p>
           </div>
           <p>You'll receive another email when your order ships.</p>
           <p>Best regards,<br>The Ogni Team</p>
         </div>
       `,
-      text: `Order Confirmation - ${orderId}\n\nHi ${customerName},\n\nThank you for your order! Your order #${orderId} has been successfully placed.\n\nOrder Details:\nOrder ID: ${orderId}\nTotal: R$ ${orderDetails.total?.toFixed(2)}\nStatus: ${orderDetails.status}\n\nYou'll receive another email when your order ships.\n\nBest regards,\nThe Ogni Team`
+      text: `Order Confirmation - ${orderId}\n\nHi ${customerName},\n\nThank you for your order! Your order #${orderId} has been successfully placed.\n\nOrder Details:\nOrder ID: ${orderId}\nTotal: R$ ${typeof orderDetails.total === 'number' ? orderDetails.total.toFixed(2) : 'N/A'}\nStatus: ${String(orderDetails.status || 'Processing')}\n\nYou'll receive another email when your order ships.\n\nBest regards,\nThe Ogni Team`
     };
   }
 
-  private getOrderStatusUpdateTemplate(orderId: string, customerName: string, newStatus: string, orderDetails: any): EmailTemplate {
+  private getOrderStatusUpdateTemplate(orderId: string, customerName: string, newStatus: string, _orderDetails: Record<string, unknown>): EmailTemplate {
     return {
       subject: `Order Update - ${orderId}`,
       html: `
@@ -255,7 +281,7 @@ export class EmailService {
     };
   }
 
-  private getShippingConfirmationTemplate(orderId: string, customerName: string, trackingInfo: any): EmailTemplate {
+  private getShippingConfirmationTemplate(orderId: string, customerName: string, trackingInfo: Record<string, unknown>): EmailTemplate {
     return {
       subject: `Your Order Has Shipped - ${orderId}`,
       html: `
@@ -265,15 +291,15 @@ export class EmailService {
           <p>Great news! Your order #${orderId} has been shipped and is on its way to you.</p>
           <div style="background: #f5f5f5; padding: 20px; margin: 20px 0;">
             <h3>Shipping Details</h3>
-            <p><strong>Tracking Number:</strong> ${trackingInfo.trackingNumber}</p>
-            <p><strong>Carrier:</strong> ${trackingInfo.carrier}</p>
-            <p><strong>Estimated Delivery:</strong> ${trackingInfo.estimatedDelivery}</p>
+            <p><strong>Tracking Number:</strong> ${String(trackingInfo.trackingNumber || 'N/A')}</p>
+            <p><strong>Carrier:</strong> ${String(trackingInfo.carrier || 'N/A')}</p>
+            <p><strong>Estimated Delivery:</strong> ${String(trackingInfo.estimatedDelivery || 'N/A')}</p>
           </div>
           <p>You can track your package using the information above.</p>
           <p>Best regards,<br>The Ogni Team</p>
         </div>
       `,
-      text: `Your Order Has Shipped - ${orderId}\n\nHi ${customerName},\n\nGreat news! Your order #${orderId} has been shipped and is on its way to you.\n\nShipping Details:\nTracking Number: ${trackingInfo.trackingNumber}\nCarrier: ${trackingInfo.carrier}\nEstimated Delivery: ${trackingInfo.estimatedDelivery}\n\nYou can track your package using the information above.\n\nBest regards,\nThe Ogni Team`
+      text: `Your Order Has Shipped - ${orderId}\n\nHi ${customerName},\n\nGreat news! Your order #${orderId} has been shipped and is on its way to you.\n\nShipping Details:\nTracking Number: ${String(trackingInfo.trackingNumber || 'N/A')}\nCarrier: ${String(trackingInfo.carrier || 'N/A')}\nEstimated Delivery: ${String(trackingInfo.estimatedDelivery || 'N/A')}\n\nYou can track your package using the information above.\n\nBest regards,\nThe Ogni Team`
     };
   }
 
@@ -327,17 +353,17 @@ export class EmailService {
     };
   }
 
-  private getNewsletterTemplate(newsletterContent: any): EmailTemplate {
+  private getNewsletterTemplate(newsletterContent: Record<string, unknown>): EmailTemplate {
     return {
-      subject: newsletterContent.subject || 'Ogni Newsletter',
+      subject: String(newsletterContent.subject || 'Ogni Newsletter'),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">${newsletterContent.title || 'Ogni Newsletter'}</h1>
-          <div>${newsletterContent.content}</div>
+          <h1 style="color: #333;">${String(newsletterContent.title || 'Ogni Newsletter')}</h1>
+          <div>${String(newsletterContent.content || '')}</div>
           <p>Best regards,<br>The Ogni Team</p>
         </div>
       `,
-      text: `${newsletterContent.title || 'Ogni Newsletter'}\n\n${newsletterContent.content}\n\nBest regards,\nThe Ogni Team`
+      text: `${String(newsletterContent.title || 'Ogni Newsletter')}\n\n${String(newsletterContent.content || '')}\n\nBest regards,\nThe Ogni Team`
     };
   }
 }

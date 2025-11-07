@@ -4,6 +4,7 @@ import { Cart as CartType, Order } from '../../types';
 import { Checkout as CheckoutComponent } from '../../components/checkout';
 import { CartService } from '../../services/cartService';
 import { OrderService } from '../../services/orderService';
+import { log } from 'shared/utils/logger';
 
 const CheckoutPage: React.FC = () => {
   const [cart, setCart] = useState<CartType | null>(null);
@@ -51,7 +52,7 @@ const CheckoutPage: React.FC = () => {
         setProducts(productsObj);
         setLatestOrder(null);
       } catch (err) {
-        console.error('Failed to load cart for checkout:', err);
+        log.error('Failed to load cart for checkout:', { err });
         setError('Erro ao carregar carrinho para checkout');
       } finally {
         setLoading(false);
@@ -61,7 +62,7 @@ const CheckoutPage: React.FC = () => {
     loadCart();
   }, [userId]);
 
-  const handleSubmitOrder = async (checkoutData: { shippingAddress: any; paymentMethod: 'pix' | 'card' }) => {
+  const handleSubmitOrder = async (checkoutData: { shippingAddress: { street: string; city: string; zip: string }; paymentMethod: 'pix' | 'card' }) => {
     if (!cart) return;
 
     try {
@@ -75,7 +76,7 @@ const CheckoutPage: React.FC = () => {
         checkoutData.paymentMethod
       );
 
-      console.log('Order created successfully:', order);
+      log.info('Order created successfully:', { order });
 
       let processedOrder = order;
       try {
@@ -84,7 +85,7 @@ const CheckoutPage: React.FC = () => {
           transactionId: `demo-${Date.now()}`,
         });
       } catch (paymentError) {
-        console.warn('Payment simulation failed:', paymentError);
+        log.warn('Payment simulation failed:', { paymentError });
       }
 
       setLatestOrder(processedOrder);
@@ -96,7 +97,7 @@ const CheckoutPage: React.FC = () => {
       return processedOrder;
 
     } catch (err) {
-      console.error('Failed to create order:', err);
+      log.error('Failed to create order:', { err });
       setError('Erro ao finalizar pedido. Tente novamente.');
       throw err;
     } finally {

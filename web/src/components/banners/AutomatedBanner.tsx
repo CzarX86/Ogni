@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -7,7 +7,6 @@ import {
   TrendingUp,
   Clock,
   Users,
-  ShoppingBag,
   Zap,
   Star,
   Gift,
@@ -15,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { log } from '../../utils/logger';
+import { log } from 'shared/utils/logger';
 
 export interface BannerData {
   id: string;
@@ -78,7 +77,7 @@ interface AutomatedBannerProps {
   };
   onBannerClick?: (banner: BannerData) => void;
   onBannerDismiss?: (banner: BannerData) => void;
-  onBannerView?: (banner: BannerData) => void;
+  onBannerView?: (_banner: BannerData) => void;
   className?: string;
 }
 
@@ -92,7 +91,7 @@ export const AutomatedBanner: React.FC<AutomatedBannerProps> = ({
   userContext,
   onBannerClick,
   onBannerDismiss,
-  onBannerView,
+  onBannerView: _onBannerView,
   className = ''
 }) => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
@@ -100,39 +99,7 @@ export const AutomatedBanner: React.FC<AutomatedBannerProps> = ({
   const [dismissedBanners, setDismissedBanners] = useState<Set<string>>(new Set());
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Filter and prioritize banners based on user context and schedule
-  useEffect(() => {
-    const filtered = banners
-      .filter(banner => !dismissedBanners.has(banner.id))
-      .filter(banner => isBannerEligible(banner, userContext))
-      .sort((a, b) => b.priority - a.priority)
-      .slice(0, options.maxBanners || 5);
-
-    setVisibleBanners(filtered);
-    setCurrentBannerIndex(0);
-  }, [banners, userContext, dismissedBanners, options.maxBanners]);
-
-  // Auto-rotate banners
-  useEffect(() => {
-    if (!options.autoRotate || visibleBanners.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentBannerIndex(prev =>
-        prev === visibleBanners.length - 1 ? 0 : prev + 1
-      );
-    }, options.rotationInterval || 5000);
-
-    return () => clearInterval(interval);
-  }, [options.autoRotate, options.rotationInterval, visibleBanners.length]);
-
-  // Track banner views
-  useEffect(() => {
-    if (visibleBanners.length > 0 && onBannerView) {
-      onBannerView(visibleBanners[currentBannerIndex]);
-    }
-  }, [currentBannerIndex, visibleBanners, onBannerView]);
-
-  const isBannerEligible = (banner: BannerData, context?: typeof userContext): boolean => {
+  const isBannerEligible = useCallback((banner: BannerData, context?: typeof userContext): boolean => {
     if (!context || !banner.targetAudience) return true;
 
     // Check user segments
@@ -178,7 +145,19 @@ export const AutomatedBanner: React.FC<AutomatedBannerProps> = ({
     }
 
     return true;
-  };
+  }, []);
+
+  // Filter and prioritize banners based on user context and schedule
+  useEffect(() => {
+    const filtered = banners
+      .filter(banner => !dismissedBanners.has(banner.id))
+      .filter(banner => isBannerEligible(banner, userContext))
+      .sort((a, b) => b.priority - a.priority)
+      .slice(0, options.maxBanners || 5);
+
+    setVisibleBanners(filtered); // eslint-disable-line react-hooks/set-state-in-effect
+    setCurrentBannerIndex(0);
+  }, [banners, userContext, dismissedBanners, options.maxBanners, isBannerEligible]);
 
   const handleBannerClick = (banner: BannerData) => {
     log.info('Banner clicked', { bannerId: banner.id, type: banner.type });
@@ -286,7 +265,7 @@ export const AutomatedBanner: React.FC<AutomatedBannerProps> = ({
     <div className={`${getPositionClasses()} ${className}`}>
       <Card
         className={`${getSizeClasses()} ${getAnimationClasses()} shadow-lg border-0`}
-        // eslint-disable-next-line react/forbid-component-props
+         
         style={{
           backgroundColor: currentBanner.backgroundColor,
           color: currentBanner.textColor
@@ -300,7 +279,7 @@ export const AutomatedBanner: React.FC<AutomatedBannerProps> = ({
               size="sm"
               className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-black hover:bg-opacity-10"
               onClick={() => handleBannerDismiss(currentBanner)}
-              // eslint-disable-next-line react/forbid-component-props
+               
               style={{ color: currentBanner.textColor }}
             >
               <X className="h-4 w-4" />
@@ -364,7 +343,7 @@ export const AutomatedBanner: React.FC<AutomatedBannerProps> = ({
                             ? 'bg-current'
                             : 'bg-current opacity-30'
                         }`}
-                        // eslint-disable-next-line react/forbid-component-props
+                         
                         style={{ color: currentBanner.textColor }}
                       />
                     ))}
@@ -377,7 +356,7 @@ export const AutomatedBanner: React.FC<AutomatedBannerProps> = ({
                   className="h-6 w-6 p-0"
                   onClick={nextBanner}
                   disabled={isAnimating}
-                  // eslint-disable-next-line react/forbid-component-props
+                   
                   style={{ color: currentBanner.textColor }}
                 >
                   <ChevronRight className="h-4 w-4" />

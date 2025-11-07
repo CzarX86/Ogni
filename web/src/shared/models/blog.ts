@@ -38,7 +38,7 @@ export interface BlogPost {
   relatedPosts: string[]; // post IDs
   structuredData?: {
     '@type': string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   metadata: {
     wordCount: number;

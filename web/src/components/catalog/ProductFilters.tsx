@@ -11,10 +11,10 @@ interface ProductFiltersProps {
   selectedPriceRange: { min: number; max: number };
   sortBy: 'name' | 'price-low' | 'price-high' | 'newest' | 'rating';
   searchTerm: string;
-  onCategoryChange: (categoryId?: string) => void;
-  onPriceRangeChange: (range: { min: number; max: number }) => void;
-  onSortChange: (sort: 'name' | 'price-low' | 'price-high' | 'newest' | 'rating') => void;
-  onSearchChange: (term: string) => void;
+  onCategoryChange: (_categoryId?: string) => void;
+  onPriceRangeChange: (_range: { min: number; max: number }) => void;
+  onSortChange: (_sort: 'name' | 'price-low' | 'price-high' | 'newest' | 'rating') => void;
+  onSearchChange: (_term: string) => void;
   onClearFilters: () => void;
 }
 

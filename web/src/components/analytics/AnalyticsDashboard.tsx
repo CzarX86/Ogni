@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
@@ -34,7 +34,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { AnalyticsService } from '@/shared/services/analytics';
-import { log } from '../../utils/logger';
+import { log } from 'shared/utils/logger';
 
 interface DashboardMetrics {
   totalUsers: number;
@@ -96,7 +96,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
 
   // Load dashboard data
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -162,7 +162,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange]);
 
   // Auto-refresh data
   useEffect(() => {
@@ -170,7 +170,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
     const interval = setInterval(loadDashboardData, refreshInterval);
     return () => clearInterval(interval);
-  }, [timeRange, refreshInterval]);
+  }, [loadDashboardData, refreshInterval]);
 
   // Format currency
   const formatCurrency = (value: number) => {

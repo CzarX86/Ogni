@@ -1,4 +1,4 @@
-import { log } from '@/shared/utils/logger';
+import { log } from 'shared/utils/logger';
 import { GoogleAnalyticsService } from './GoogleAnalyticsService';
 import { MetaPixelService } from './MetaPixelService';
 import { ConversionsAPIService } from './ConversionsAPIService';
@@ -475,7 +475,7 @@ export class AnalyticsManager {
   /**
    * Track custom event
    */
-  trackCustomEvent(eventName: string, parameters?: Record<string, any>): void {
+  trackCustomEvent(eventName: string, parameters?: Record<string, unknown>): void {
     if (!this.isInitialized) return;
 
     try {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Cart as CartType, CheckoutForm, Order } from '../../types';
 import { formatPrice } from '../../utils/format';
+import { log } from 'shared/utils/logger';
 
 interface CheckoutProps {
   cart: CartType;
@@ -132,7 +133,7 @@ export const Checkout: React.FC<CheckoutProps> = ({
       }
       setCurrentStep('confirmation');
     } catch (error) {
-      console.error('Error submitting order:', error);
+      log.error('Error submitting order:', { error });
       setErrors({
         general: error instanceof Error
           ? error.message

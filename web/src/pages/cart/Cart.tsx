@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Cart as CartType, Product } from '../../types';
 import { Cart as CartComponent } from '../../components/cart';
 import { CartService } from '../../services/cartService';
+import { logger } from '../../shared/utils/logger';
 
 const CartPage: React.FC = () => {
   const [cart, setCart] = useState<CartType | null>(null);
@@ -50,7 +51,7 @@ const CartPage: React.FC = () => {
           setProducts({});
         }
       } catch (err) {
-        console.error('Failed to load cart:', err);
+        logger.error('Failed to load cart', { error: err });
         setError('Erro ao carregar carrinho');
       } finally {
         setLoading(false);
@@ -87,7 +88,7 @@ const CartPage: React.FC = () => {
         setProducts({});
       }
     } catch (err) {
-      console.error('Failed to update cart:', err);
+      logger.error('Failed to update cart', { error: err });
       setError('Erro ao atualizar carrinho');
     } finally {
       setLoading(false);
@@ -118,7 +119,7 @@ const CartPage: React.FC = () => {
         setProducts({});
       }
     } catch (err) {
-      console.error('Failed to remove item:', err);
+      logger.error('Failed to remove item', { error: err });
       setError('Erro ao remover item');
     } finally {
       setLoading(false);

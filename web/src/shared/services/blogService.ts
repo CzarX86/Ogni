@@ -1,5 +1,5 @@
 import { log } from '../utils/logger';
-import { BlogPost, BlogCategory, BlogComment, BlogAnalytics } from '../models/blog';
+import { BlogPost, BlogCategory, BlogAnalytics } from '../models/blog';
 
 export interface BlogFilters {
   category?: string;
@@ -55,7 +55,7 @@ export class BlogService {
       }
       if (filters.tag) {
         filteredPosts = filteredPosts.filter(post =>
-          post.tags.some(tag => tag.toLowerCase().includes(filters.tag!.toLowerCase()))
+          post.tags.some(tag => tag.toLowerCase().includes(filters.tag?.toLowerCase() || ''))
         );
       }
       if (filters.author) {
@@ -76,12 +76,12 @@ export class BlogService {
       // Apply date filters
       if (filters.dateFrom) {
         filteredPosts = filteredPosts.filter(post =>
-          post.publishedAt && post.publishedAt >= filters.dateFrom!
+          post.publishedAt && filters.dateFrom && post.publishedAt >= filters.dateFrom
         );
       }
       if (filters.dateTo) {
         filteredPosts = filteredPosts.filter(post =>
-          post.publishedAt && post.publishedAt <= filters.dateTo!
+          post.publishedAt && filters.dateTo && post.publishedAt <= filters.dateTo
         );
       }
 
